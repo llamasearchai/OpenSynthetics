@@ -94,7 +94,7 @@ class TestWorkspace:
 
     def test_load_nonexistent_workspace(self):
         """Test loading a non-existent workspace."""
-        with pytest.raises(WorkspaceError, match="Workspace metadata.json not found"):
+        with pytest.raises(WorkspaceError, match="Workspace metadata.json not found at"):
             Workspace.load("/nonexistent/path")
 
     def test_create_dataset(self, test_workspace):
@@ -124,7 +124,7 @@ class TestWorkspace:
         assert dataset.name == "test_dataset"
         
         # Test getting non-existent dataset
-        with pytest.raises(WorkspaceError, match="Dataset 'nonexistent' not found"):
+        with pytest.raises(WorkspaceError, match="Dataset 'nonexistent' not found in workspace"):
             test_workspace.get_dataset("nonexistent")
 
 
