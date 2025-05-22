@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opensynthetics"
+version = "0.1.0"
+authors = [
+    {name = "OpenSynthetics Team", email = "info@opensynthetics.io"},
+]
+description = "Advanced Synthetic Data Generation Platform"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "fastapi>=0.104.1",
+    "uvicorn>=0.24.0",
+    "typer>=0.9.0",
+    "rich>=13.6.0",
+    "pydantic>=2.4.2",
+    "loguru>=0.7.2",
+    "numpy>=1.26.1",
+    "pyjwt>=2.8.0",
+    "datasette>=0.64.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.3",
+    "mypy>=1.6.1",
+    "pre-commit>=3.5.0",
+]
+mlx = [
+    "mlx>=0.3.0",
+]
+all = [
+    "opensynthetics[dev,mlx]",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/opensynthetics/opensynthetics"
+"Bug Tracker" = "https://github.com/opensynthetics/opensynthetics/issues"
+
+[project.scripts]
+opensynthetics = "opensynthetics.cli.main:app"
+
+[tool.setuptools]
+packages = ["opensynthetics"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+select = ["E", "F", "I", "W"]
+ignore = []
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py" 
