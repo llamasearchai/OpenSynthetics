@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Literal
 
 from loguru import logger
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 from opensynthetics.core.config import Config
 from opensynthetics.core.workspace import Workspace, Dataset
@@ -33,7 +33,8 @@ class EngineeringProblemParams(BaseModel):
     difficulty: int = Field(..., description="Difficulty level (1-10)", ge=1, le=10)
     constraints: Optional[str] = Field(None, description="Optional constraints for the problems")
     
-    @validator('domain')
+    @field_validator('domain')
+    @classmethod
     def validate_domain(cls, v):
         """Validate domain."""
         valid_domains = ['mechanical', 'electrical', 'civil', 'chemical', 'software', 'aerospace']
@@ -84,7 +85,7 @@ class GenerationStrategy:
         try:
             # Use the strategy's parameter model for validation
             validated_params = self.parameter_model(**parameters)
-            self.parameters = validated_params.dict()
+            self.parameters = validated_params.model_dump()
         except Exception as e:
             raise GenerationError(f"Invalid parameters: {e}")
         
@@ -305,14 +306,16 @@ class GenerationParameters(BaseModel):
     parameters: Dict[str, Any] = Field(..., description="Strategy parameters")
     output_dataset: str = Field(..., description="Dataset name for output")
     
-    @validator('strategy')
+    @field_validator('strategy')
+    @classmethod
     def validate_strategy(cls, v):
         """Validate strategy."""
         if v not in Engine.STRATEGIES:
             raise ValueError(f"Strategy must be one of: {', '.join(Engine.STRATEGIES.keys())}")
         return v
         
-    @validator('output_dataset')
+    @field_validator('output_dataset')
+    @classmethod
     def validate_output_dataset(cls, v):
         """Validate output dataset."""
         if not v:
@@ -439,7 +442,7 @@ class Engine:
             schema = {}
             if parameter_model:
                 try:
-                    schema = parameter_model.schema()
+                    schema = parameter_model.model_json_schema()
                 except Exception:
                     pass
                     
