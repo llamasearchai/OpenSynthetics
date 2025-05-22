@@ -12,6 +12,17 @@ from opensynthetics.core.config import Config
 from opensynthetics.core.workspace import Workspace, Dataset
 from opensynthetics.core.exceptions import WorkspaceError, DatasetError, OpenSyntheticsError, GenerationError
 from opensynthetics.llm_core.agents.generator import GeneratorAgent
+# Import advanced strategies when they're ready
+try:
+    from opensynthetics.datagen.advanced_strategies import (
+        ConversationalDataStrategy,
+        ResearchPaperStrategy,
+        CodeGenerationStrategy,
+        MultiModalDataStrategy
+    )
+    ADVANCED_STRATEGIES_AVAILABLE = True
+except ImportError:
+    ADVANCED_STRATEGIES_AVAILABLE = False
 
 
 class EngineeringProblemParams(BaseModel):
@@ -316,6 +327,15 @@ class Engine:
         "engineering_problems": EngineeringProblemsStrategy,
         "system_design": DesignSystemStrategy,
     }
+    
+    # Add advanced strategies if available
+    if ADVANCED_STRATEGIES_AVAILABLE:
+        STRATEGIES.update({
+            "conversational_data": ConversationalDataStrategy,
+            "research_papers": ResearchPaperStrategy,
+            "code_generation": CodeGenerationStrategy,
+            "multimodal_data": MultiModalDataStrategy,
+        })
     
     def __init__(self, workspace: Workspace) -> None:
         """Initialize engine.

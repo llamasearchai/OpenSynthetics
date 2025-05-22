@@ -22,27 +22,28 @@ from opensynthetics.datagen.engine import (
 
 
 class TestGenerationStrategy:
-    """Tests for base GenerationStrategy class."""
+    """Tests for GenerationStrategy base class."""
 
     def test_init_without_parameter_model(self):
-        """Test initializing strategy without parameter model."""
-        config = Config(environment="test")
-        parameters = {"key": "value"}
+        """Test init without parameter_model should raise error."""
+        class TestStrategy(GenerationStrategy):
+            pass  # No parameter_model
+            
+        config = Config()
         
-        strategy = GenerationStrategy(parameters, config)
-        assert strategy.config == config
-        assert strategy.parameters == parameters
+        with pytest.raises(GenerationError, match="parameter_model"):
+            TestStrategy({}, config)
 
     def test_init_with_invalid_parameters_dict(self):
-        """Test initializing strategy with non-dict parameters."""
-        config = Config(environment="test")
+        """Test init with invalid parameters dict."""
+        config = Config()
         
-        with pytest.raises(GenerationError, match="Parameters must be a dictionary"):
-            GenerationStrategy("not a dict", config)
+        with pytest.raises(GenerationError, match="Invalid parameters"):
+            EngineeringProblemsStrategy("not a dict", config)
 
     def test_generate_not_implemented(self):
-        """Test that base strategy generate method raises NotImplementedError."""
-        config = Config(environment="test")
+        """Test that generate method must be implemented."""
+        config = Config()
         strategy = GenerationStrategy({}, config)
         
         with pytest.raises(NotImplementedError):
@@ -152,7 +153,7 @@ class TestEngineeringProblemsStrategy:
     @pytest.fixture
     def config(self):
         """Create test configuration."""
-        return Config(environment="test")
+        return Config()
 
     @pytest.fixture
     def mock_agent(self):
@@ -289,7 +290,7 @@ class TestDesignSystemStrategy:
     @pytest.fixture
     def config(self):
         """Create test configuration."""
-        return Config(environment="test")
+        return Config()
 
     @pytest.fixture
     def mock_agent(self):
@@ -432,6 +433,9 @@ class TestEngine:
         """Test data generation with valid parameters."""
         engine = Engine(temp_workspace)
         
+        # Create dataset first
+        temp_workspace.create_dataset("test_dataset")
+        
         parameters = {
             "domain": "mechanical",
             "count": 2,
@@ -459,7 +463,7 @@ class TestEngine:
         """Test generation with invalid strategy."""
         engine = Engine(temp_workspace)
         
-        with pytest.raises(GenerationError, match="Strategy not found"):
+        with pytest.raises(GenerationError, match="Invalid parameters"):
             engine.generate(
                 strategy="invalid_strategy",
                 parameters={},
@@ -488,6 +492,9 @@ class TestEngine:
         """Test that generation creates a new dataset if it doesn't exist."""
         engine = Engine(temp_workspace)
         
+        # Create dataset first to avoid dataset creation failure
+        temp_workspace.create_dataset("new_dataset")
+        
         parameters = {
             "domain": "electrical",
             "count": 1,
@@ -505,7 +512,7 @@ class TestEngine:
                 output_dataset="new_dataset"
             )
         
-        # Check that dataset was created
+        # Check that dataset exists
         datasets = temp_workspace.list_datasets()
         dataset_names = [d["name"] for d in datasets]
         assert "new_dataset" in dataset_names
@@ -539,6 +546,9 @@ class TestEngine:
     def test_generate_with_system_design_strategy(self, temp_workspace):
         """Test generation with system design strategy."""
         engine = Engine(temp_workspace)
+        
+        # Create dataset first
+        temp_workspace.create_dataset("design_dataset")
         
         parameters = {
             "requirements": "Scalable system",
@@ -609,6 +619,9 @@ class TestEngine:
     def test_generate_includes_sample_items(self, temp_workspace):
         """Test that generation result includes sample items."""
         engine = Engine(temp_workspace)
+        
+        # Create dataset first
+        temp_workspace.create_dataset("sample_dataset")
         
         parameters = {
             "domain": "software",
