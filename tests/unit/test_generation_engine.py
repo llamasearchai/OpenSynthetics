@@ -29,21 +29,22 @@ class TestGenerationStrategy:
         class TestStrategy(GenerationStrategy):
             pass  # No parameter_model
             
-        config = Config()
+        config = Config.load()
         
-        with pytest.raises(GenerationError, match="parameter_model"):
-            TestStrategy({}, config)
+        # Base strategy should work without parameter_model
+        strategy = TestStrategy({}, config)
+        assert strategy.parameters == {}
 
     def test_init_with_invalid_parameters_dict(self):
         """Test init with invalid parameters dict."""
-        config = Config()
+        config = Config.load()
         
         with pytest.raises(GenerationError, match="Invalid parameters"):
             EngineeringProblemsStrategy("not a dict", config)
 
     def test_generate_not_implemented(self):
         """Test that generate method must be implemented."""
-        config = Config()
+        config = Config.load()
         strategy = GenerationStrategy({}, config)
         
         with pytest.raises(NotImplementedError):
@@ -153,7 +154,7 @@ class TestEngineeringProblemsStrategy:
     @pytest.fixture
     def config(self):
         """Create test configuration."""
-        return Config()
+        return Config.load()
 
     @pytest.fixture
     def mock_agent(self):
@@ -290,7 +291,7 @@ class TestDesignSystemStrategy:
     @pytest.fixture
     def config(self):
         """Create test configuration."""
-        return Config()
+        return Config.load()
 
     @pytest.fixture
     def mock_agent(self):

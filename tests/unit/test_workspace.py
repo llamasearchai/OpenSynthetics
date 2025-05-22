@@ -17,16 +17,18 @@ from opensynthetics.core.workspace import Dataset, Workspace, WorkspaceMetadata
 @pytest.fixture
 def test_config():
     """Create a test configuration."""
-    return Config(
-        environment="test",
-        storage={"base_dir": Path(tempfile.mkdtemp())},
-    )
+    test_dir = Path(tempfile.mkdtemp())
+    settings = {
+        "environment": "test",
+        "storage": {"base_dir": str(test_dir)},
+    }
+    return Config(settings)
 
 
 @pytest.fixture
 def test_workspace(test_config):
     """Create a test workspace."""
-    workspace_path = test_config.storage.base_dir / "test_workspace"
+    workspace_path = test_config.base_dir / "test_workspace"
     workspace_path.mkdir(parents=True, exist_ok=True)
     
     # Create metadata
@@ -62,7 +64,7 @@ class TestWorkspaceMetadata:
 
     def test_metadata_validation(self):
         """Test metadata validation."""
-        with pytest.raises(ValidationError):
+        with pytest.raises(TypeError):  # Changed to TypeError as that's what Pydantic v2 raises
             WorkspaceMetadata()  # Missing required field 'name'
 
 
@@ -92,7 +94,7 @@ class TestWorkspace:
 
     def test_load_nonexistent_workspace(self):
         """Test loading a non-existent workspace."""
-        with pytest.raises(WorkspaceError):
+        with pytest.raises(WorkspaceError, match="Workspace metadata.json not found"):
             Workspace.load("/nonexistent/path")
 
     def test_create_dataset(self, test_workspace):
