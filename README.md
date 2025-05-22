@@ -102,6 +102,7 @@ For more detailed documentation, see:
 - [Architecture](docs/architecture.md)
 - [API Reference](docs/api-reference/index.md)
 - [CLI Reference](docs/cli-reference.md)
+- [Data Validation](docs/data_validation.md)
 - [Development Guide](docs/development/index.md)
 
 ## License
