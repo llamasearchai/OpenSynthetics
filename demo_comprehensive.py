@@ -29,7 +29,7 @@ class OpenSyntheticsDemo:
         self.validator = AdvancedDataValidator()
         self.results = {}
         
-        print("🚀 OpenSynthetics Comprehensive Demo")
+        print("[INFO] OpenSynthetics Comprehensive Demo")
         print("=" * 60)
         print(f"Base Directory: {self.config.base_dir}")
         print(f"Environment: {self.config.environment}")
@@ -37,7 +37,7 @@ class OpenSyntheticsDemo:
     
     def demo_workspace_management(self) -> Dict[str, Any]:
         """Demonstrate advanced workspace management."""
-        print("📁 WORKSPACE MANAGEMENT DEMO")
+        print("[INFO] WORKSPACE MANAGEMENT DEMO")
         print("-" * 40)
         
         # Create multiple workspaces for different use cases
@@ -64,7 +64,7 @@ class OpenSyntheticsDemo:
             try:
                 workspace = Workspace.create(**config)
                 workspaces.append(workspace)
-                print(f"✅ Created workspace: {config['name']}")
+                print(f"[OK] Created workspace: {config['name']}")
                 
                 # Add metadata
                 workspace.metadata.update({
@@ -76,15 +76,15 @@ class OpenSyntheticsDemo:
                 workspace.save_metadata()
                 
             except Exception as e:
-                print(f"❌ Failed to create workspace {config['name']}: {e}")
+                print(f"[ERROR] Failed to create workspace {config['name']}: {e}")
         
-        print(f"📊 Created {len(workspaces)} workspaces successfully")
+        print(f"[INFO] Created {len(workspaces)} workspaces successfully")
         print()
         return {"workspaces": [w.name for w in workspaces], "count": len(workspaces)}
     
     def demo_advanced_data_generation(self) -> Dict[str, Any]:
         """Demonstrate advanced data generation with multiple strategies."""
-        print("🎲 ADVANCED DATA GENERATION DEMO")
+        print("[INFO] ADVANCED DATA GENERATION DEMO")
         print("-" * 40)
         
         generation_results = {}
@@ -121,10 +121,10 @@ class OpenSyntheticsDemo:
                 output_dataset="ml_features_correlated"
             )
             generation_results["tabular"] = tabular_result
-            print(f"   ✅ Generated {tabular_result.get('count', 0)} rows with correlations")
+            print(f"   [OK] Generated {tabular_result.get('count', 0)} rows with correlations")
             
         except Exception as e:
-            print(f"   ❌ Tabular generation failed: {e}")
+            print(f"   [ERROR] Tabular generation failed: {e}")
         
         # 2. Realistic Customer Data
         print("2. Generating realistic customer profiles...")
@@ -148,10 +148,10 @@ class OpenSyntheticsDemo:
                 output_dataset="customer_profiles_2024"
             )
             generation_results["customer"] = customer_result
-            print(f"   ✅ Generated {customer_result.get('count', 0)} customer profiles")
+            print(f"   [OK] Generated {customer_result.get('count', 0)} customer profiles")
             
         except Exception as e:
-            print(f"   ❌ Customer generation failed: {e}")
+            print(f"   [ERROR] Customer generation failed: {e}")
         
         # 3. Time-Series Sales Data
         print("3. Generating time-series sales data...")
@@ -173,18 +173,18 @@ class OpenSyntheticsDemo:
                 output_dataset="sales_transactions_2024"
             )
             generation_results["sales"] = sales_result
-            print(f"   ✅ Generated {sales_result.get('count', 0)} sales transactions")
+            print(f"   [OK] Generated {sales_result.get('count', 0)} sales transactions")
             
         except Exception as e:
-            print(f"   ❌ Sales generation failed: {e}")
+            print(f"   [ERROR] Sales generation failed: {e}")
         
-        print(f"📊 Generated {len(generation_results)} different dataset types")
+        print(f"[INFO] Generated {len(generation_results)} different dataset types")
         print()
         return generation_results
     
     def demo_data_quality_validation(self) -> Dict[str, Any]:
         """Demonstrate comprehensive data quality validation."""
-        print("🔍 DATA QUALITY VALIDATION DEMO")
+        print("[INFO] DATA QUALITY VALIDATION DEMO")
         print("-" * 40)
         
         validation_results = {}
@@ -200,7 +200,7 @@ class OpenSyntheticsDemo:
                     data_list = json.load(f)
                 
                 df = pd.DataFrame(data_list)
-                print(f"📋 Validating dataset with {len(df)} rows, {len(df.columns)} columns")
+                print(f"[INFO] Validating dataset with {len(df)} rows, {len(df.columns)} columns")
                 
                 # Comprehensive validation
                 validation_report = self.validator.comprehensive_validation(
@@ -211,31 +211,31 @@ class OpenSyntheticsDemo:
                 )
                 
                 # Display results
-                print(f"📊 Overall Quality Score: {validation_report['overall_score']:.3f}")
+                print(f"[INFO] Overall Quality Score: {validation_report['overall_score']:.3f}")
                 
                 if 'quality_metrics' in validation_report:
                     completeness = validation_report['quality_metrics']['completeness']['overall_completeness']
-                    print(f"📈 Data Completeness: {completeness:.3f}")
+                    print(f"[INFO] Data Completeness: {completeness:.3f}")
                 
                 if 'anomaly_detection' in validation_report:
                     anomaly_count = validation_report['anomaly_detection'].get('anomaly_count', 0)
                     anomaly_pct = validation_report['anomaly_detection'].get('anomaly_percentage', 0)
-                    print(f"🚨 Anomalies Detected: {anomaly_count} ({anomaly_pct:.2f}%)")
+                    print(f"[INFO] Anomalies Detected: {anomaly_count} ({anomaly_pct:.2f}%)")
                 
                 validation_results["customer_data"] = validation_report
                 
             else:
-                print("⚠️  Customer dataset not found for validation")
+                print("[WARNING] Customer dataset not found for validation")
                 
         except Exception as e:
-            print(f"❌ Validation failed: {e}")
+            print(f"[ERROR] Validation failed: {e}")
         
         print()
         return validation_results
     
     def demo_performance_benchmarks(self) -> Dict[str, Any]:
         """Demonstrate performance benchmarking capabilities."""
-        print("⚡ PERFORMANCE BENCHMARKING DEMO")
+        print("[INFO] PERFORMANCE BENCHMARKING DEMO")
         print("-" * 40)
         
         benchmark_results = {}
@@ -244,7 +244,7 @@ class OpenSyntheticsDemo:
         test_sizes = [1000, 10000, 50000]
         
         for size in test_sizes:
-            print(f"🏃 Benchmarking generation of {size:,} rows...")
+            print(f"[INFO] Benchmarking generation of {size:,} rows...")
             
             try:
                 workspace = Workspace.load("ml_training_data")
@@ -273,10 +273,10 @@ class OpenSyntheticsDemo:
                     "success": True
                 }
                 
-                print(f"   ✅ {size:,} rows in {duration:.2f}s ({rows_per_second:,.0f} rows/sec)")
+                print(f"   [OK] {size:,} rows in {duration:.2f}s ({rows_per_second:,.0f} rows/sec)")
                 
             except Exception as e:
-                print(f"   ❌ Benchmark failed for {size} rows: {e}")
+                print(f"   [ERROR] Benchmark failed for {size} rows: {e}")
                 benchmark_results[f"{size}_rows"] = {"success": False, "error": str(e)}
         
         print()
@@ -284,7 +284,7 @@ class OpenSyntheticsDemo:
     
     def demo_api_integration(self) -> Dict[str, Any]:
         """Demonstrate API integration capabilities."""
-        print("🌐 API INTEGRATION DEMO")
+        print("[INFO] API INTEGRATION DEMO")
         print("-" * 40)
         
         api_results = {}
@@ -300,10 +300,10 @@ class OpenSyntheticsDemo:
             health_response = requests.get(f"{base_url}/health")
             if health_response.status_code == 200:
                 health_data = health_response.json()
-                print(f"   ✅ System Status: {health_data.get('status', 'unknown')}")
+                print(f"   [OK] System Status: {health_data.get('status', 'unknown')}")
                 api_results["health"] = health_data
             else:
-                print(f"   ❌ Health check failed: {health_response.status_code}")
+                print(f"   [ERROR] Health check failed: {health_response.status_code}")
             
             # Test workspace listing
             print("2. Testing workspace API...")
@@ -311,10 +311,10 @@ class OpenSyntheticsDemo:
             if workspaces_response.status_code == 200:
                 workspaces_data = workspaces_response.json()
                 workspace_count = len(workspaces_data.get("workspaces", []))
-                print(f"   ✅ Found {workspace_count} workspaces via API")
+                print(f"   [OK] Found {workspace_count} workspaces via API")
                 api_results["workspaces"] = workspaces_data
             else:
-                print(f"   ❌ Workspace API failed: {workspaces_response.status_code}")
+                print(f"   [ERROR] Workspace API failed: {workspaces_response.status_code}")
             
             # Test data generation via API
             print("3. Testing generation API...")
@@ -333,16 +333,16 @@ class OpenSyntheticsDemo:
             
             if gen_response.status_code == 200:
                 gen_data = gen_response.json()
-                print(f"   ✅ Generated data via API: {gen_data.get('count', 0)} rows")
+                print(f"   [OK] Generated data via API: {gen_data.get('count', 0)} rows")
                 api_results["generation"] = gen_data
             else:
-                print(f"   ❌ Generation API failed: {gen_response.status_code}")
+                print(f"   [ERROR] Generation API failed: {gen_response.status_code}")
                 
         except requests.exceptions.ConnectionError:
-            print("   ⚠️  API server not running. Start with: python start_server.py")
+            print("   [WARNING] API server not running. Start with: python start_server.py")
             api_results["error"] = "Server not running"
         except Exception as e:
-            print(f"   ❌ API integration failed: {e}")
+            print(f"   [ERROR] API integration failed: {e}")
             api_results["error"] = str(e)
         
         print()
@@ -350,7 +350,7 @@ class OpenSyntheticsDemo:
     
     def demo_advanced_features(self) -> Dict[str, Any]:
         """Demonstrate advanced features and capabilities."""
-        print("🎯 ADVANCED FEATURES DEMO")
+        print("[INFO] ADVANCED FEATURES DEMO")
         print("-" * 40)
         
         advanced_results = {}
@@ -383,14 +383,14 @@ class OpenSyntheticsDemo:
             }
             
             is_valid, error = self.validator.validate(test_customer, "customer_profile")
-            print(f"   ✅ Schema validation: {'PASSED' if is_valid else 'FAILED'}")
+            print(f"   [OK] Schema validation: {'PASSED' if is_valid else 'FAILED'}")
             if error:
                 print(f"      Error: {error}")
             
             advanced_results["schema_validation"] = {"valid": is_valid, "error": error}
             
         except Exception as e:
-            print(f"   ❌ Schema validation failed: {e}")
+            print(f"   [ERROR] Schema validation failed: {e}")
         
         # 2. Statistical distribution testing
         print("2. Statistical distribution testing...")
@@ -403,13 +403,13 @@ class OpenSyntheticsDemo:
                 normal_series, "normal"
             )
             
-            print(f"   ✅ Normal distribution test: {'PASSED' if is_normal else 'FAILED'}")
+            print(f"   [OK] Normal distribution test: {'PASSED' if is_normal else 'FAILED'}")
             print(f"      {message}")
             
             advanced_results["distribution_test"] = {"valid": is_normal, "message": message}
             
         except Exception as e:
-            print(f"   ❌ Distribution testing failed: {e}")
+            print(f"   [ERROR] Distribution testing failed: {e}")
         
         # 3. ML-based anomaly detection
         print("3. ML-based anomaly detection...")
@@ -426,20 +426,20 @@ class OpenSyntheticsDemo:
             detected_count = anomaly_results.get('anomaly_count', 0)
             expected_anomalies = 50  # We injected 50 anomalies
             
-            print(f"   ✅ Anomaly detection: {detected_count} detected (expected ~{expected_anomalies})")
+            print(f"   [OK] Anomaly detection: {detected_count} detected (expected ~{expected_anomalies})")
             print(f"      Detection rate: {detected_count/expected_anomalies*100:.1f}%")
             
             advanced_results["anomaly_detection"] = anomaly_results
             
         except Exception as e:
-            print(f"   ❌ Anomaly detection failed: {e}")
+            print(f"   [ERROR] Anomaly detection failed: {e}")
         
         print()
         return advanced_results
     
     def generate_summary_report(self) -> None:
         """Generate a comprehensive summary report."""
-        print("📋 COMPREHENSIVE DEMO SUMMARY")
+        print("[INFO] COMPREHENSIVE DEMO SUMMARY")
         print("=" * 60)
         
         total_features = 0
@@ -451,7 +451,7 @@ class OpenSyntheticsDemo:
             if isinstance(results, dict):
                 if "error" not in results:
                     successful_features += 1
-                    print(f"  ✅ SUCCESS")
+                    print(f"  [OK] SUCCESS")
                     
                     # Display key metrics
                     if "count" in results:
@@ -461,44 +461,44 @@ class OpenSyntheticsDemo:
                     if "overall_score" in results:
                         print(f"     Quality Score: {results['overall_score']:.3f}")
                 else:
-                    print(f"  ❌ FAILED: {results['error']}")
+                    print(f"  [ERROR] FAILED: {results['error']}")
             else:
                 successful_features += 1
-                print(f"  ✅ SUCCESS")
+                print(f"  [OK] SUCCESS")
             
             total_features += 1
         
-        print(f"\n🎯 OVERALL RESULTS:")
+        print(f"\n[INFO] OVERALL RESULTS:")
         print(f"   Features Tested: {total_features}")
         print(f"   Successful: {successful_features}")
         print(f"   Success Rate: {successful_features/total_features*100:.1f}%")
         
-        print(f"\n🚀 SYSTEM CAPABILITIES DEMONSTRATED:")
-        print(f"   ✅ Enterprise workspace management")
-        print(f"   ✅ Multi-strategy data generation")
-        print(f"   ✅ Advanced quality validation")
-        print(f"   ✅ ML-powered anomaly detection")
-        print(f"   ✅ Statistical distribution testing")
-        print(f"   ✅ Performance benchmarking")
-        print(f"   ✅ RESTful API integration")
-        print(f"   ✅ Schema-based validation")
+        print(f"\n[INFO] SYSTEM CAPABILITIES DEMONSTRATED:")
+        print(f"   [OK] Enterprise workspace management")
+        print(f"   [OK] Multi-strategy data generation")
+        print(f"   [OK] Advanced quality validation")
+        print(f"   [OK] ML-powered anomaly detection")
+        print(f"   [OK] Statistical distribution testing")
+        print(f"   [OK] Performance benchmarking")
+        print(f"   [OK] RESTful API integration")
+        print(f"   [OK] Schema-based validation")
         
-        print(f"\n💼 ENTERPRISE FEATURES:")
-        print(f"   ✅ GDPR-compliant data generation")
-        print(f"   ✅ Scalable architecture (1K-1M+ records)")
-        print(f"   ✅ Comprehensive audit logging")
-        print(f"   ✅ Type-safe codebase with 117+ tests")
-        print(f"   ✅ Production-ready deployment")
+        print(f"\n[INFO] ENTERPRISE FEATURES:")
+        print(f"   [OK] GDPR-compliant data generation")
+        print(f"   [OK] Scalable architecture (1K-1M+ records)")
+        print(f"   [OK] Comprehensive audit logging")
+        print(f"   [OK] Type-safe codebase with 117+ tests")
+        print(f"   [OK] Production-ready deployment")
         
-        print(f"\n🎓 TECHNICAL EXCELLENCE:")
-        print(f"   ✅ Modern Python 3.11+ with type hints")
-        print(f"   ✅ FastAPI with async/await patterns")
-        print(f"   ✅ Pandas/NumPy for high-performance computing")
-        print(f"   ✅ Scikit-learn for ML-based validation")
-        print(f"   ✅ Professional code quality (Black, Ruff, MyPy)")
+        print(f"\n[INFO] TECHNICAL EXCELLENCE:")
+        print(f"   [OK] Modern Python 3.11+ with type hints")
+        print(f"   [OK] FastAPI with async/await patterns")
+        print(f"   [OK] Pandas/NumPy for high-performance computing")
+        print(f"   [OK] Scikit-learn for ML-based validation")
+        print(f"   [OK] Professional code quality (Black, Ruff, MyPy)")
         
         print("\n" + "=" * 60)
-        print("🏆 OpenSynthetics: Production-Ready Synthetic Data Platform")
+        print("[SUCCESS] OpenSynthetics: Production-Ready Synthetic Data Platform")
         print("   Ready for enterprise deployment and scale")
         print("=" * 60)
     

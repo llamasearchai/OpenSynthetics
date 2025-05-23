@@ -22,16 +22,9 @@ class OpenSyntheticsAPITester:
         
     def log_test(self, test_name: str, success: bool, details: str = ""):
         """Log test result."""
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"    {details}")
-        
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "details": details
-        })
+        status = "[PASS]" if success else "[FAIL]"
+        self.test_results.append((test_name, success, details))
+        print(f"{status} {test_name}: {details}")
     
     def test_health_endpoint(self) -> bool:
         """Test the health endpoint."""
@@ -234,18 +227,18 @@ class OpenSyntheticsAPITester:
         success_rate = (passed / total) * 100
         
         print("=" * 60)
-        print(f"📊 TEST RESULTS SUMMARY")
-        print(f"   Total Tests: {total}")
-        print(f"   Passed: {passed}")
-        print(f"   Failed: {total - passed}")
-        print(f"   Success Rate: {success_rate:.1f}%")
+        print(f"[INFO] TEST RESULTS SUMMARY")
+        print(f"="*60)
+        print(f"Tests Passed: {passed}/{total}")
+        print(f"Success Rate: {success_rate:.1f}%")
+        print(f"{"="*60}")
         
         if success_rate == 100:
-            print("🎉 ALL TESTS PASSED! API is fully functional.")
+            print("[SUCCESS] ALL TESTS PASSED! API is fully functional.")
         elif success_rate >= 80:
-            print("⚠️  Most tests passed. Minor issues detected.")
+            print(f"[WARNING] {total - passed} tests failed. Please review the issues.")
         else:
-            print("❌ Multiple test failures. API needs attention.")
+            print(f"[ERROR] {total - passed} tests failed. API needs attention.")
         
         return {
             "total": total,

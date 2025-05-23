@@ -584,24 +584,24 @@ def describe_template(template: str):
                 click.echo(f"   • {col}")
             
             if info.get('business_rules'):
-                click.echo("\n📏 Business Rules:")
+                click.echo("\n[BUSINESS] Business Rules:")
                 for rule in info['business_rules']:
                     click.echo(f"   • {rule}")
             
             if info.get('temporal_patterns'):
-                click.echo("\n📈 Temporal Patterns:")
+                click.echo("\n[TEMPORAL] Temporal Patterns:")
                 for pattern in info['temporal_patterns']:
                     click.echo(f"   • {pattern}")
             
-            click.echo("\n🎯 Use Cases:")
+            click.echo("\n[USAGE] Use Cases:")
             for use_case in info['use_cases']:
                 click.echo(f"   • {use_case}")
         else:
             click.echo(f"Template '{template}' not found", err=True)
     else:
-        click.echo("\n📋 Available Templates:\n")
+        click.echo("\n[INFO] Available Templates:\n")
         for name, info in templates_info.items():
-            click.echo(f"🔹 {name}: {info['description']}")
+            click.echo(f"[TEMPLATE] {name}: {info['description']}")
         
         click.echo(f"\nUse --template <name> to see detailed information about a specific template.")
 

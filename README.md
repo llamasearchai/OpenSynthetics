@@ -1,50 +1,44 @@
-# OpenSynthetics
+![OpenSynthetics Logo](OpenSynthetics.svg)
 
-**Enterprise-Grade Synthetic Data Generation Platform**
+# OpenSynthetics: Advanced Synthetic Data Generation Platform
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
+![OpenSynthetics UI](OpenSyntheticsUI.png)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen.svg)](tests/)
-[![Code Quality](https://img.shields.io/badge/code%20quality-A+-brightgreen.svg)](opensynthetics/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-## 🎯 Interactive Dashboard & Advanced Visualizations
+## [DEMO] Interactive Dashboard & Advanced Visualizations
 
-![OpenSynthetics Dashboard](CleanShot%202025-05-22%20at%2020.22.20@2x.png)
+The screenshot above showcases our modern web interface featuring:
+- **Real-time 3D data visualizations** powered by Three.js
+- **Interactive analytics dashboard** with comprehensive metrics
+- **Workspace management** with project organization
+- **Advanced generation controls** with strategy selection
+- **Quality monitoring** with real-time validation feedback
 
-*OpenSynthetics features a modern, responsive web interface with real-time 3D visualizations, comprehensive analytics dashboards, and intuitive workspace management - all powered by cutting-edge technologies like Three.js, D3.js, and FastAPI.*
+## [FEATURES] Key Features & Capabilities
 
----
+**Advanced Enterprise Platform**: Production-ready synthetic data generation with enterprise-grade security, compliance features, and scalable architecture designed for mission-critical applications.
 
-OpenSynthetics is a powerful, enterprise-ready platform for generating high-quality synthetic data. It provides a complete solution for data scientists, engineers, and researchers who need realistic test data while maintaining privacy and compliance standards.
+**Modern Web Interface**: Beautiful, responsive UI with 3D visualizations, real-time analytics, and intuitive workspace management.
 
-## 🚀 Key Features & Capabilities
+### [TECHNICAL] **Advanced Data Generation**
+- **Multiple Generation Strategies**: Tabular, customer profiles, sales transactions, IoT sensor data
+- **Statistical Correlation Control**: Generate data with specific correlation matrices and dependencies  
+- **Distribution Modeling**: Support for normal, uniform, exponential, and custom distributions
+- **Privacy-Preserving Generation**: GDPR-compliant synthetic data with configurable privacy levels
+- **Real-time Validation**: Built-in quality checks during generation process
+- **Streaming Generation**: Memory-efficient processing for large datasets (1M+ records)
+- **Custom Schema Support**: JSON schema-based validation and constraint enforcement
+- **Advanced Anomaly Injection**: Configurable anomaly patterns for testing and validation
 
-### 🎨 **Modern Web Interface**
-- **Real-time 3D Visualizations**: Interactive data landscapes powered by Three.js
-- **Advanced Analytics Dashboard**: Live metrics, generation trends, and system monitoring
-- **Responsive Design**: Works seamlessly across desktop, tablet, and mobile devices
-- **Demo Mode**: Intelligent sample data display for immediate exploration
-
-### 🔧 **Advanced Data Generation**
-- **Multiple Strategies**: Tabular, time-series, customer data, sales data, IoT sensor data
-- **Statistical Validation**: Built-in quality metrics and ML-powered anomaly detection
-- **Custom Parameters**: JSON schema-based parameter validation and configuration
-- **Scalable Processing**: Handle datasets from thousands to millions of records
-
-### 🏗️ **Enterprise Architecture**
-- **FastAPI Backend**: High-performance async API with automatic OpenAPI documentation
-- **Type-Safe Codebase**: 100% type annotations with comprehensive testing (117+ tests)
-- **Modular Design**: Clean separation of concerns with dependency injection
-- **Production Ready**: Docker support, rate limiting, and comprehensive logging
-
-### 🔒 **Security & Compliance**
-- **API Key Management**: Scoped access control with usage analytics
+### [SECURITY] **Security & Compliance**
 - **GDPR Compliance**: Privacy-preserving data generation with PII masking
 - **Audit Logging**: Complete request/response tracking for enterprise compliance
 - **Secure Storage**: Encrypted credential storage and data protection
 
-### ⚡ **Performance & Scale**
+### [PERFORMANCE] **Performance & Scale**
 - **High-Speed Generation**: 10K+ rows/second with statistical validation
 - **Memory Efficient**: Streaming generation for large datasets
 - **Concurrent Processing**: Thread-safe operations with proper resource management
@@ -267,64 +261,66 @@ You can create a workspace using the API:
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/workspaces" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: <YOUR_API_KEY>" \
-  -d '{
-    "name": "demo_workspace",
-    "description": "Demo workspace for OpenSynthetics",
-    "tags": ["demo", "example"]
-  }'
+     -H "X-API-Key: your-api-key" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "name": "my_project",
+       "description": "My synthetic data project"
+     }'
 ```
 
-### 2. Generate a Dataset (API)
-
-After creating a workspace, generate a dataset:
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/generate" \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: <YOUR_API_KEY>" \
-  -d '{
-    "workspace": "demo_workspace",
-    "strategy": "tabular_random",
-    "parameters": {"num_rows": 100, "num_columns": 5},
-    "dataset": "demo_dataset"
-  }'
-```
-
-### 3. Visualize in the Web UI
-
-- Open your browser and go to [http://localhost:8000/ui/](http://localhost:8000/ui/)
-- Navigate to the **Workspaces** page to see your new workspace.
-- Go to the **Datasets** page to view your generated dataset.
-- Use the **Visualize** or **Analytics** tabs to explore the data with interactive charts and 3D visualizations.
-
-### 4. Example Python Usage
+### 2. Generate Data (Python SDK)
 
 ```python
-from opensynthetics.core.workspace import Workspace
+from opensynthetics import OpenSynthetics
 
-# Create a workspace
-ws = Workspace.create(name="demo_workspace", description="Demo workspace")
+# Initialize client
+client = OpenSynthetics(api_key="your-api-key")
 
-# Create a dataset
-ds = ws.create_dataset(name="demo_dataset", description="Demo dataset")
+# Create workspace
+workspace = client.create_workspace(
+    name="customer_analysis",
+    description="Customer behavior analysis project"
+)
 
-# Add data
-data = [
-    {"id": 1, "name": "Alice", "score": 95},
-    {"id": 2, "name": "Bob", "score": 88},
-    {"id": 3, "name": "Charlie", "score": 92},
-]
-ds.add_data(data)
+# Generate customer data
+result = client.generate_data(
+    workspace=workspace.name,
+    strategy="customer_profiles",
+    parameters={
+        "count": 10000,
+        "include_demographics": True,
+        "include_behavior": True,
+        "privacy_level": "high"
+    },
+    dataset_name="customers_2024"
+)
 
-# List datasets
-print(ws.list_datasets())
+print(f"Generated {result.count} customer records")
 ```
 
-### 5. UI Demo Walkthrough
+### 3. Validate and Export
 
-1. Click **Create Workspace** on the Dashboard or Workspaces page.
-2. Enter a name (e.g., `demo_workspace`) and description, then submit.
-3. Go to **Generate** and create a new dataset in your workspace.
-4. View and analyze your dataset in the **Datasets** and **Visualize** sections. 
+```python
+# Validate data quality
+validation = client.validate_dataset(
+    workspace=workspace.name,
+    dataset="customers_2024",
+    include_statistical_tests=True,
+    include_privacy_analysis=True
+)
+
+print(f"Data quality score: {validation.overall_score}")
+
+# Export to different formats
+client.export_dataset(
+    workspace=workspace.name,
+    dataset="customers_2024",
+    format="parquet",
+    output_path="./customers_2024.parquet"
+)
+```
+
+---
+
+**OpenSynthetics** - Enterprise-grade synthetic data generation for modern applications. 
