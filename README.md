@@ -2,50 +2,127 @@
 
 # OpenSynthetics: Advanced Synthetic Data Generation Platform
 
-![OpenSynthetics UI](OpenSyntheticsUI.png)
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
 ## Overview
-OpenSynthetics is a comprehensive platform for generating, validating, and managing synthetic data. It provides tools for data quality assessment, statistical validation, and integration with external services like Google Drive and Postman.
+OpenSynthetics is a comprehensive platform for generating, validating, and managing synthetic data. It provides tools for data quality assessment, statistical validation, and integration with external services.
 
-## Features
-- **Synthetic Data Generation**: Create realistic datasets for testing and development.
-- **Data Validation**: Advanced validation tools for ensuring data quality and consistency.
-- **Workspace Management**: Organize and manage datasets in dedicated workspaces.
-- **API Integration**: Seamless integration with external APIs and services.
-- **Web UI**: User-friendly interface for managing data and configurations.
+## Key Features
+
+### Core Capabilities
+- Synthetic Data Generation: Create realistic datasets for testing and development
+- Data Validation: Advanced validation tools for ensuring data quality and consistency
+- Workspace Management: Organize and manage datasets in dedicated workspaces
+- API Integration: Seamless integration with external APIs and services
+- Web UI: User-friendly interface for managing data and configurations
+
+### Advanced Functionality
+- Multiple Generation Strategies: Tabular, customer profiles, sales transactions, IoT sensor data
+- Statistical Correlation Control: Generate data with specific correlation matrices
+- Distribution Modeling: Support for normal, uniform, exponential distributions
+- Privacy-Preserving Generation: Configurable privacy levels for compliance
+- Real-time Validation: Built-in quality checks during generation
+- Streaming Generation: Memory-efficient processing for large datasets
+- Custom Schema Support: JSON schema-based validation
+- Advanced Anomaly Injection: Configurable patterns for testing
+
+### Security and Compliance
+- GDPR Compliance: Privacy-preserving data generation with PII masking
+- Audit Logging: Complete request/response tracking
+- Secure Storage: Encrypted credential storage
+- API Key Management: Comprehensive key management with scopes
+
+### Performance Characteristics
+- High-Speed Generation: 10K+ rows/second with validation
+- Memory Efficiency: Streaming generation for large datasets
+- Concurrent Processing: Thread-safe operations
+- API Performance: <100ms response times (95th percentile)
 
 ## Quick Start
-1. **Installation**: Clone the repository and install dependencies.
+1. **Installation**: Clone the repository and install dependencies
    ```bash
    git clone https://github.com/your-repo/OpenSynthetics.git
    cd OpenSynthetics
    pip install -r requirements.txt
    ```
-2. **Configuration**: Set up your environment by creating a configuration file.
+2. **Configuration**: Set up your environment
    ```bash
    opensynthetics config set
    ```
-3. **Run the Server**: Start the API server.
+3. **Run the Server**: Start the API server
    ```bash
    opensynthetics api serve --host 0.0.0.0 --port 8000
    ```
-4. **Access the Web UI**: Navigate to `http://localhost:8000/ui` in your browser.
+4. **Access Interfaces**:
+   - Web UI: http://localhost:8000/ui
+   - API Docs: http://localhost:8000/docs
 
-## Documentation
-For detailed API documentation, visit `http://localhost:8000/docs` after starting the server.
+## Architecture
+OpenSynthetics follows a modular architecture:
+
+```
+opensynthetics/
+├── api/           # FastAPI application and routers
+├── cli/           # Command-line interface
+├── core/          # Core functionality
+├── data_ops/      # Data operations
+├── datagen/       # Generation engines
+├── llm_core/      # LLM integrations
+├── training/      # Model training
+└── web_ui/        # Web interface
+```
+
+## Development
+
+### Testing
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=opensynthetics
+```
+
+### Code Quality
+```bash
+# Format code
+black opensynthetics tests
+
+# Lint code
+ruff check opensynthetics
+
+# Type checking
+mypy opensynthetics
+```
+
+## Deployment
+
+### Docker
+```bash
+docker build -t opensynthetics .
+docker run -p 8000:8000 opensynthetics
+```
+
+### Docker Compose
+```bash
+docker-compose up -d
+```
+
+## API Documentation
+The API provides comprehensive endpoints for:
+- Workspace management
+- Data generation
+- Validation
+- Integration management
+
+Full OpenAPI documentation is available at http://localhost:8000/docs when running.
 
 ## Contributing
-We welcome contributions! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## License
-This project is licensed under the terms of the [LICENSE](LICENSE) file.
+MIT License - See [LICENSE](LICENSE) for details.
 
 ## Support
-For support or questions, please open an issue on our GitHub repository.
+For issues or questions, please open an issue in our GitHub repository.
 
 ## [DEMO] Interactive Dashboard & Advanced Visualizations
 
