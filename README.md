@@ -8,6 +8,45 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+## Overview
+OpenSynthetics is a comprehensive platform for generating, validating, and managing synthetic data. It provides tools for data quality assessment, statistical validation, and integration with external services like Google Drive and Postman.
+
+## Features
+- **Synthetic Data Generation**: Create realistic datasets for testing and development.
+- **Data Validation**: Advanced validation tools for ensuring data quality and consistency.
+- **Workspace Management**: Organize and manage datasets in dedicated workspaces.
+- **API Integration**: Seamless integration with external APIs and services.
+- **Web UI**: User-friendly interface for managing data and configurations.
+
+## Quick Start
+1. **Installation**: Clone the repository and install dependencies.
+   ```bash
+   git clone https://github.com/your-repo/OpenSynthetics.git
+   cd OpenSynthetics
+   pip install -r requirements.txt
+   ```
+2. **Configuration**: Set up your environment by creating a configuration file.
+   ```bash
+   opensynthetics config set
+   ```
+3. **Run the Server**: Start the API server.
+   ```bash
+   opensynthetics api serve --host 0.0.0.0 --port 8000
+   ```
+4. **Access the Web UI**: Navigate to `http://localhost:8000/ui` in your browser.
+
+## Documentation
+For detailed API documentation, visit `http://localhost:8000/docs` after starting the server.
+
+## Contributing
+We welcome contributions! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+This project is licensed under the terms of the [LICENSE](LICENSE) file.
+
+## Support
+For support or questions, please open an issue on our GitHub repository.
+
 ## [DEMO] Interactive Dashboard & Advanced Visualizations
 
 The screenshot above showcases our modern web interface featuring:
@@ -54,94 +93,6 @@ The screenshot above showcases our modern web interface featuring:
 - **Quality Benchmarking**: Built-in tools to measure synthetic data quality
 - **Multiple Export Formats**: Support for JSON, CSV, Parquet, and more
 - **Extensible Architecture**: Plugin system for custom generation strategies
-
-## Installation
-
-### Requirements
-
-- Python 3.11 or higher
-- 4GB RAM minimum (8GB recommended)
-- 1GB free disk space
-
-### Quick Start
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/opensynthetics.git
-cd opensynthetics
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
-
-3. Install the package:
-```bash
-pip install -e .
-```
-
-4. Run the setup script:
-```bash
-python setup_dev.py
-```
-
-5. Start the server:
-```bash
-python start_server.py
-```
-
-6. Open your browser and navigate to:
-   - Web UI: http://localhost:8000/ui
-   - API Documentation: http://localhost:8000/docs
-
-## Usage
-
-### Web Interface
-
-The web interface provides a comprehensive dashboard for:
-- Creating and managing workspaces
-- Generating synthetic datasets
-- Visualizing data with advanced charts
-- Monitoring system performance
-- Managing API integrations
-
-### Command Line Interface
-
-Generate synthetic data from the command line:
-
-```bash
-# Generate customer data
-opensynthetics generate customer-data output.json --rows 1000
-
-# Generate with specific template
-opensynthetics generate --template sales_data --output sales.csv --format csv
-
-# Benchmark data quality
-opensynthetics benchmark dataset.json --reference original.json
-```
-
-### API Usage
-
-```python
-import requests
-
-# Generate synthetic data via API
-response = requests.post(
-    "http://localhost:8000/api/v1/generate/jobs",
-    headers={"X-API-Key": "your-api-key"},
-    json={
-        "workspace_path": "/path/to/workspace",
-        "strategy": "engineering_problems",
-        "parameters": {"count": 100},
-        "output_dataset": "problems_dataset"
-    }
-)
-
-result = response.json()
-print(f"Generated {result['count']} items")
-```
 
 ## Architecture
 
@@ -236,16 +187,6 @@ The API provides the following main endpoints:
 - `GET /api/v1/strategies` - List available strategies
 
 Full API documentation is available at http://localhost:8000/docs when the server is running.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- Documentation: [docs.opensynthetics.io](https://docs.opensynthetics.io)
-- Issues: [GitHub Issues](https://github.com/yourusername/opensynthetics/issues)
-- Discussions: [GitHub Discussions](https://github.com/yourusername/opensynthetics/discussions)
 
 ## Acknowledgments
 
