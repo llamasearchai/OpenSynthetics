@@ -202,7 +202,7 @@ class OpenSyntheticsAPITester:
     
     def run_all_tests(self) -> Dict[str, Any]:
         """Run all API tests."""
-        print("🧪 OpenSynthetics API Comprehensive Test Suite")
+        print("[TEST] OpenSynthetics API Comprehensive Test Suite")
         print("=" * 60)
         
         tests = [
@@ -228,10 +228,11 @@ class OpenSyntheticsAPITester:
         
         print("=" * 60)
         print(f"[INFO] TEST RESULTS SUMMARY")
-        print(f"="*60)
+        separator = "=" * 60
+        print(separator)
         print(f"Tests Passed: {passed}/{total}")
         print(f"Success Rate: {success_rate:.1f}%")
-        print(f"{"="*60}")
+        print(separator)
         
         if success_rate == 100:
             print("[SUCCESS] ALL TESTS PASSED! API is fully functional.")
