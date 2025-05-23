@@ -86,7 +86,7 @@ app.add_middleware(RateLimitMiddleware, rate_limit=100)
 
 # Include routers
 app.include_router(integrations_router, prefix="/api/v1")
-app.include_router(projects_router, prefix="/api/v1")
+app.include_router(projects_router, prefix="/api/v1/projects")
 
 # Get the directory where the web UI assets are stored
 web_ui_dir = Path(__file__).parent.parent / "web_ui" / "dist"
@@ -157,6 +157,7 @@ async def list_workspaces(api_key: str = Depends(get_api_key)):
         # Ensure base directory exists
         if not base_dir.exists():
             base_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created base directory: {base_dir}")
             return {"workspaces": []}
         
         # Find all directories in the base directory that have a metadata.json file
@@ -173,19 +174,34 @@ async def list_workspaces(api_key: str = Depends(get_api_key)):
                         "updated_at": workspace.metadata.updated_at,
                     })
                 except Exception as e:
-                    # Skip invalid workspaces
+                    logger.warning(f"Skipping invalid workspace at {path}: {e}")
                     continue
         
         return {"workspaces": workspaces}
     except Exception as e:
         logger.error(f"Error listing workspaces: {e}")
-        return {"workspaces": []}
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list workspaces: {str(e)}"
+        )
 
 @app.get("/api/v1/workspaces/{workspace_path:path}", tags=["Workspaces"])
 async def get_workspace(workspace_path: str, api_key: str = Depends(get_api_key)):
     """Get workspace information."""
     try:
-        workspace = Workspace.load(workspace_path)
+        # Handle both absolute and relative paths
+        if not Path(workspace_path).is_absolute():
+            config = Config.load()
+            workspace_path = str(config.base_dir / workspace_path)
+        
+        workspace_path_obj = Path(workspace_path)
+        if not workspace_path_obj.exists():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Workspace not found: {workspace_path}"
+            )
+        
+        workspace = Workspace.load(workspace_path_obj)
         datasets = workspace.list_datasets()
         
         return {
@@ -196,16 +212,18 @@ async def get_workspace(workspace_path: str, api_key: str = Depends(get_api_key)
             "updated_at": workspace.metadata.updated_at,
             "datasets": datasets,
         }
+    except HTTPException:
+        raise
     except WorkspaceError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
+            detail=str(e)
         )
     except Exception as e:
         logger.error(f"Error getting workspace {workspace_path}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail=f"Failed to get workspace: {str(e)}"
         )
 
 @app.post("/api/v1/workspaces", tags=["Workspaces"])
@@ -218,6 +236,7 @@ async def create_workspace(
         name = request.get("name")
         path = request.get("path")
         description = request.get("description", "")
+        tags = request.get("tags", [])
         
         if not name:
             raise HTTPException(
@@ -225,10 +244,16 @@ async def create_workspace(
                 detail="Workspace name is required"
             )
         
+        # Use default path if not provided
+        if not path:
+            config = Config.load()
+            path = str(config.base_dir / name)
+        
         workspace = Workspace.create(
             name=name,
             path=path,
             description=description,
+            tags=tags,
         )
         
         return {
@@ -237,65 +262,101 @@ async def create_workspace(
             "description": workspace.metadata.description,
             "created_at": workspace.metadata.created_at,
             "updated_at": workspace.metadata.updated_at,
+            "message": "Workspace created successfully"
         }
+        
     except WorkspaceError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e),
+            detail=str(e)
         )
     except Exception as e:
         logger.error(f"Error creating workspace: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail=f"Failed to create workspace: {str(e)}"
         )
 
 @app.get("/api/v1/workspaces/{workspace_path:path}/datasets", tags=["Datasets"])
 async def list_datasets(workspace_path: str, api_key: str = Depends(get_api_key)):
     """List datasets in a workspace."""
     try:
-        workspace = Workspace.load(workspace_path)
+        # Handle both absolute and relative paths
+        if not Path(workspace_path).is_absolute():
+            config = Config.load()
+            workspace_path = str(config.base_dir / workspace_path)
+        
+        workspace_path_obj = Path(workspace_path)
+        if not workspace_path_obj.exists():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Workspace not found: {workspace_path}"
+            )
+        
+        workspace = Workspace.load(workspace_path_obj)
         datasets = workspace.list_datasets()
         
         return {"datasets": datasets}
+        
+    except HTTPException:
+        raise
     except WorkspaceError as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e),
+            detail=str(e)
         )
     except Exception as e:
-        logger.error(f"Error listing datasets in {workspace_path}: {e}")
+        logger.error(f"Error listing datasets in workspace {workspace_path}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail=f"Failed to list datasets: {str(e)}"
         )
 
 @app.get("/api/v1/workspaces/{workspace_path:path}/datasets/{dataset_name}", tags=["Datasets"])
 async def get_dataset(workspace_path: str, dataset_name: str, api_key: str = Depends(get_api_key)):
     """Get dataset information."""
     try:
-        workspace = Workspace.load(workspace_path)
-        dataset = workspace.get_dataset(dataset_name)
-        stats = dataset.get_stats()
+        # Handle both absolute and relative paths
+        if not Path(workspace_path).is_absolute():
+            config = Config.load()
+            workspace_path = str(config.base_dir / workspace_path)
         
-        return {
-            "name": dataset.name,
-            "description": dataset.description,
-            "tags": getattr(dataset, 'tags', []),
-            "created_at": stats.get("created_at", ""),
-            "updated_at": stats.get("updated_at", ""),
-            "tables": stats.get("tables", {}),
-        }
-    except (WorkspaceError, Exception) as e:
-        if "not found" in str(e).lower():
+        workspace_path_obj = Path(workspace_path)
+        if not workspace_path_obj.exists():
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=str(e),
+                detail=f"Workspace not found: {workspace_path}"
             )
-        logger.error(f"Error getting dataset {dataset_name} in {workspace_path}: {e}")
+        
+        workspace = Workspace.load(workspace_path_obj)
+        
+        # Check if dataset exists
+        if not workspace.has_dataset(dataset_name):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Dataset '{dataset_name}' not found in workspace"
+            )
+        
+        dataset_info = workspace.get_dataset_info(dataset_name)
+        
+        return {
+            "name": dataset_name,
+            "workspace": workspace.name,
+            "info": dataset_info,
+        }
+        
+    except HTTPException:
+        raise
+    except (WorkspaceError, DatasetError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error(f"Error getting dataset {dataset_name} in workspace {workspace_path}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail=f"Failed to get dataset: {str(e)}"
         )
 
 @app.post("/api/v1/generate", tags=["Generation"])

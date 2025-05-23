@@ -18,9 +18,6 @@ from opensynthetics.core.workspace import Workspace
 from opensynthetics.core.config import Config
 from opensynthetics.datagen.engine import Engine
 from opensynthetics.data_ops.validation import AdvancedDataValidator
-from opensynthetics.datagen.strategies.tabular import TabularRandomStrategy
-from opensynthetics.datagen.strategies.customer import CustomerDataStrategy
-from opensynthetics.datagen.strategies.sales import SalesDataStrategy
 
 
 class OpenSyntheticsDemo:
