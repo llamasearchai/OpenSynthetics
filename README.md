@@ -217,4 +217,74 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/)
 - UI powered by [Three.js](https://threejs.org/) and [D3.js](https://d3js.org/)
-- Data processing with [Pandas](https://pandas.pydata.org/) and [DuckDB](https://duckdb.org/) 
+- Data processing with [Pandas](https://pandas.pydata.org/) and [DuckDB](https://duckdb.org/)
+
+## Complete Working Example
+
+### 1. Create a Workspace (API)
+
+You can create a workspace using the API:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/workspaces" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <YOUR_API_KEY>" \
+  -d '{
+    "name": "demo_workspace",
+    "description": "Demo workspace for OpenSynthetics",
+    "tags": ["demo", "example"]
+  }'
+```
+
+### 2. Generate a Dataset (API)
+
+After creating a workspace, generate a dataset:
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/generate" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: <YOUR_API_KEY>" \
+  -d '{
+    "workspace": "demo_workspace",
+    "strategy": "tabular_random",
+    "parameters": {"num_rows": 100, "num_columns": 5},
+    "dataset": "demo_dataset"
+  }'
+```
+
+### 3. Visualize in the Web UI
+
+- Open your browser and go to [http://localhost:8000/ui/](http://localhost:8000/ui/)
+- Navigate to the **Workspaces** page to see your new workspace.
+- Go to the **Datasets** page to view your generated dataset.
+- Use the **Visualize** or **Analytics** tabs to explore the data with interactive charts and 3D visualizations.
+
+### 4. Example Python Usage
+
+```python
+from opensynthetics.core.workspace import Workspace
+
+# Create a workspace
+ws = Workspace.create(name="demo_workspace", description="Demo workspace")
+
+# Create a dataset
+ds = ws.create_dataset(name="demo_dataset", description="Demo dataset")
+
+# Add data
+data = [
+    {"id": 1, "name": "Alice", "score": 95},
+    {"id": 2, "name": "Bob", "score": 88},
+    {"id": 3, "name": "Charlie", "score": 92},
+]
+ds.add_data(data)
+
+# List datasets
+print(ws.list_datasets())
+```
+
+### 5. UI Demo Walkthrough
+
+1. Click **Create Workspace** on the Dashboard or Workspaces page.
+2. Enter a name (e.g., `demo_workspace`) and description, then submit.
+3. Go to **Generate** and create a new dataset in your workspace.
+4. View and analyze your dataset in the **Datasets** and **Visualize** sections. 
