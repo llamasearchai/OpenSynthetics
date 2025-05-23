@@ -18,9 +18,9 @@ from opensynthetics.core.config import Config
 from opensynthetics.core.workspace import Workspace, WorkspaceError, DatasetError
 from opensynthetics.cli.scientific import scientific
 
-# Import synthetic differently since it's a click command
+# Import synthetic commands from the Typer wrapper
 try:
-    from opensynthetics.cli.synthetic import synthetic as synthetic_cli
+    from opensynthetics.cli.synthetic_typer import app as synthetic
     SYNTHETIC_AVAILABLE = True
 except ImportError:
     SYNTHETIC_AVAILABLE = False
@@ -55,9 +55,7 @@ app.add_typer(agent_app)
 app.add_typer(scientific, name="scientific")
 
 if SYNTHETIC_AVAILABLE:
-    # For now, let's disable synthetic until we can properly convert it
-    # Add it as a separate typer app later
-    pass
+    app.add_typer(synthetic, name="synthetic")
 
 
 @app.command("init")

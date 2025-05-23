@@ -442,7 +442,7 @@ class SyntheticDatasetBenchmark:
             label_encoders = {}
             for col in X_synthetic.select_dtypes(include=['object']).columns:
                 le = LabelEncoder()
-                X_synthetic[col] = le.fit_transform(X_synthetic[col].astype(str))
+                X_synthetic.loc[:, col] = le.fit_transform(X_synthetic[col].astype(str))
                 label_encoders[col] = le
             
             # Handle target variable

@@ -1,0 +1,403 @@
+{
+  "config": {
+    "num_rows": 100,
+    "columns": [
+      {
+        "name": "customer_id",
+        "data_type": "id",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {},
+          "min_value": null,
+          "max_value": null,
+          "mean": null,
+          "std": null,
+          "categories": null,
+          "weights": null
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": true,
+        "correlation_with": null,
+        "correlation_strength": 0.0,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": "CUST",
+        "id_format": "{prefix}_{:08d}"
+      },
+      {
+        "name": "age",
+        "data_type": "numeric",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {},
+          "min_value": 18.0,
+          "max_value": 80.0,
+          "mean": 35.0,
+          "std": 12.0,
+          "categories": null,
+          "weights": null
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": null,
+        "correlation_strength": 0.0,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": null,
+        "id_format": null
+      },
+      {
+        "name": "income",
+        "data_type": "numeric",
+        "distribution": {
+          "distribution_type": "lognormal",
+          "parameters": {},
+          "min_value": 20000.0,
+          "max_value": null,
+          "mean": 10.5,
+          "std": 0.8,
+          "categories": null,
+          "weights": null
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": "age",
+        "correlation_strength": 0.3,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": null,
+        "id_format": null
+      },
+      {
+        "name": "gender",
+        "data_type": "categorical",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {},
+          "min_value": null,
+          "max_value": null,
+          "mean": null,
+          "std": null,
+          "categories": [
+            "Male",
+            "Female",
+            "Other"
+          ],
+          "weights": [
+            0.48,
+            0.48,
+            0.04
+          ]
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": null,
+        "correlation_strength": 0.0,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": null,
+        "id_format": null
+      },
+      {
+        "name": "region",
+        "data_type": "categorical",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {},
+          "min_value": null,
+          "max_value": null,
+          "mean": null,
+          "std": null,
+          "categories": [
+            "North",
+            "South",
+            "East",
+            "West",
+            "Central"
+          ],
+          "weights": [
+            0.2,
+            0.25,
+            0.15,
+            0.25,
+            0.15
+          ]
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": null,
+        "correlation_strength": 0.0,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": null,
+        "id_format": null
+      },
+      {
+        "name": "registration_date",
+        "data_type": "datetime",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {},
+          "min_value": null,
+          "max_value": null,
+          "mean": null,
+          "std": null,
+          "categories": null,
+          "weights": null
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": null,
+        "correlation_strength": 0.0,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": "2022-05-23 18:28:15.269921",
+        "datetime_end": "2025-05-22 18:28:15.269933",
+        "id_prefix": null,
+        "id_format": null
+      },
+      {
+        "name": "is_premium",
+        "data_type": "boolean",
+        "distribution": {
+          "distribution_type": "normal",
+          "parameters": {
+            "prob_true": 0.3
+          },
+          "min_value": null,
+          "max_value": null,
+          "mean": null,
+          "std": null,
+          "categories": null,
+          "weights": null
+        },
+        "nullable": false,
+        "null_probability": 0.0,
+        "unique": false,
+        "correlation_with": "income",
+        "correlation_strength": 0.4,
+        "text_pattern": null,
+        "text_length_range": [
+          5,
+          50
+        ],
+        "datetime_start": null,
+        "datetime_end": null,
+        "id_prefix": null,
+        "id_format": null
+      }
+    ],
+    "consistency_level": 0.9,
+    "completeness_level": 0.95,
+    "add_outliers": true,
+    "outlier_probability": 0.02,
+    "add_noise": false,
+    "noise_level": 0.1,
+    "add_temporal_patterns": false,
+    "seasonality": null,
+    "trend": null,
+    "business_rules": [
+      "if age > 65 then is_premium = True",
+      "if income > 100000 then is_premium = True"
+    ],
+    "constraints": [],
+    "export_config": null,
+    "include_metadata": true,
+    "seed": null
+  },
+  "metadata": {
+    "generated_at": "2025-05-22T18:28:15.287152",
+    "num_rows": 100,
+    "num_columns": 7,
+    "memory_usage_mb": 0.02114105224609375,
+    "generation_time": 1747963695.287551
+  },
+  "benchmark_metrics": {
+    "completeness_score": 1.0,
+    "consistency_score": 1.0,
+    "uniqueness_score": 0.7892857142857143,
+    "validity_score": 1.0,
+    "distribution_similarity": {},
+    "correlation_preservation": 0.0,
+    "statistical_fidelity": 0.0,
+    "ml_utility_score": 0.0,
+    "predictive_performance": {},
+    "privacy_score": 0.0,
+    "disclosure_risk": 0.0,
+    "overall_quality_score": 0.6183928571428571
+  },
+  "export_metadata": {
+    "export_timestamp": "2025-05-22 18:28:15.294423",
+    "total_records": 100,
+    "file_count": 1,
+    "total_size_bytes": 8144,
+    "schema_info": {
+      "columns": [
+        "customer_id",
+        "age",
+        "gender",
+        "region",
+        "registration_date",
+        "income",
+        "is_premium"
+      ],
+      "dtypes": {
+        "customer_id": "object",
+        "age": "float64",
+        "gender": "object",
+        "region": "object",
+        "registration_date": "datetime64[ns]",
+        "income": "float64",
+        "is_premium": "bool"
+      },
+      "shape": [
+        100,
+        7
+      ],
+      "memory_usage_mb": 0.02114105224609375,
+      "null_counts": {
+        "customer_id": 0,
+        "age": 0,
+        "gender": 0,
+        "region": 0,
+        "registration_date": 0,
+        "income": 0,
+        "is_premium": 0
+      },
+      "unique_counts": {
+        "customer_id": 100,
+        "age": 91,
+        "gender": 5,
+        "region": 9,
+        "registration_date": 100,
+        "income": 98,
+        "is_premium": 2
+      }
+    },
+    "compression_ratio": 2.7220039292730847,
+    "export_config": {
+      "format": "parquet",
+      "compression": null,
+      "chunk_size": 10000,
+      "include_metadata": true,
+      "preserve_dtypes": true,
+      "nested_json_as_string": false,
+      "decimal_precision": 6,
+      "parquet_engine": "pyarrow",
+      "parquet_compression": "snappy",
+      "row_group_size": 50000,
+      "csv_separator": ",",
+      "csv_quoting": "minimal",
+      "csv_encoding": "utf-8",
+      "validate_schema": true,
+      "create_checksums": true,
+      "split_large_files": true,
+      "max_file_size_mb": 500
+    },
+    "checksums": {
+      "synthetic_output/synthetic_dataset.parquet": {
+        "md5": "bdd1f4534e20fb6542a49a1f527386ad",
+        "sha256": "ed7b5f350519e42a4501ffab24d9f470fad2bf8185978891420a3bd4503e559c"
+      }
+    },
+    "quality_metrics": {
+      "completeness": {
+        "overall": 1.0,
+        "by_column": {
+          "customer_id": 1.0,
+          "age": 1.0,
+          "gender": 1.0,
+          "region": 1.0,
+          "registration_date": 1.0,
+          "income": 1.0,
+          "is_premium": 1.0
+        }
+      },
+      "uniqueness": {
+        "duplicate_rows": "0",
+        "duplicate_ratio": 0.0,
+        "unique_ratios": {
+          "customer_id": 1.0,
+          "age": 0.91,
+          "gender": 0.05,
+          "region": 0.09,
+          "registration_date": 1.0,
+          "income": 0.98,
+          "is_premium": 0.02
+        }
+      },
+      "consistency": {
+        "dtype_consistency": true,
+        "encoding_issues": 0
+      },
+      "statistics": {
+        "numeric_summary": {
+          "age": {
+            "count": 100.0,
+            "mean": 33.3446568351874,
+            "std": 12.37469860916638,
+            "min": -13.654661724549989,
+            "25%": 24.199389314686226,
+            "50%": 32.857322847558905,
+            "75%": 39.751822740340714,
+            "max": 74.17133046629736
+          },
+          "income": {
+            "count": 100.0,
+            "mean": 53262.47947120643,
+            "std": 45538.0452548841,
+            "min": 5743.372136834732,
+            "25%": 24434.50556185511,
+            "50%": 39390.41053196636,
+            "75%": 59607.66952208885,
+            "max": 208970.79652244833
+          }
+        },
+        "correlations": {
+          "age": {
+            "age": 1.0,
+            "income": 0.5144444043241007
+          },
+          "income": {
+            "age": 0.5144444043241007,
+            "income": 1.0
+          }
+        }
+      }
+    }
+  }
+}
