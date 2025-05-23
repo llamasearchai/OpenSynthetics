@@ -69,7 +69,7 @@ async def list_projects(
     """
     try:
         config = Config.load()
-        base_dir = config.storage.base_dir
+        base_dir = config.base_dir
         
         # List all subdirectories in base_dir
         projects = []
@@ -124,7 +124,7 @@ async def get_project(
     """
     try:
         config = Config.load()
-        project_path = config.storage.base_dir / project_name
+        project_path = config.base_dir / project_name
         
         if not project_path.exists() or not (project_path / "metadata.json").exists():
             raise HTTPException(status_code=404, detail=f"Project {project_name} not found")
@@ -166,7 +166,7 @@ async def delete_project(
         
     try:
         config = Config.load()
-        project_path = config.storage.base_dir / project_name
+        project_path = config.base_dir / project_name
         
         if not project_path.exists() or not (project_path / "metadata.json").exists():
             raise HTTPException(status_code=404, detail=f"Project {project_name} not found")

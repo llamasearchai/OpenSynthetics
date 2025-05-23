@@ -130,16 +130,16 @@ def generate(template: Optional[str], config_file: Optional[str], num_rows: int,
                 "export_metadata": result.get("export_metadata")
             }, f, indent=2, default=str)
         
-        click.echo(f"✅ Dataset generated successfully!")
-        click.echo(f"📊 Rows: {result['metadata']['num_rows']}")
-        click.echo(f"📋 Columns: {result['metadata']['num_columns']}")
-        click.echo(f"💾 Size: {result['metadata']['memory_usage_mb']:.2f} MB")
+        click.echo(f"[OK] Dataset generated successfully!")
+        click.echo(f"[INFO] Rows: {result['metadata']['num_rows']}")
+        click.echo(f"[INFO] Columns: {result['metadata']['num_columns']}")
+        click.echo(f"[INFO] Size: {result['metadata']['memory_usage_mb']:.2f} MB")
         
         if benchmark and result.get("benchmark_metrics"):
             metrics = result["benchmark_metrics"]
-            click.echo(f"🎯 Quality Score: {metrics.get('overall_quality_score', 0):.3f}")
+            click.echo(f"[INFO] Quality Score: {metrics.get('overall_quality_score', 0):.3f}")
         
-        click.echo(f"📁 Output: {output_path}")
+        click.echo(f"[FILE] Output: {output_path}")
         
     except Exception as e:
         logger.error(f"Dataset generation failed: {e}")
@@ -235,12 +235,12 @@ def batch_generate(config_file: str, output_dir: str, format: str,
         
         # Print summary
         summary = batch_metadata["generation_summary"]
-        click.echo(f"✅ Batch generation completed!")
-        click.echo(f"📊 Total datasets: {summary['total_datasets']}")
-        click.echo(f"✔️  Successful: {summary['successful']}")
-        click.echo(f"❌ Failed: {summary['failed']}")
-        click.echo(f"📈 Total rows: {summary['total_rows']}")
-        click.echo(f"📁 Output: {output_path}")
+        click.echo(f"[OK] Batch generation completed!")
+        click.echo(f"[INFO] Total datasets: {summary['total_datasets']}")
+        click.echo(f"[OK] Successful: {summary['successful']}")
+        click.echo(f"[ERROR] Failed: {summary['failed']}")
+        click.echo(f"[INFO] Total rows: {summary['total_rows']}")
+        click.echo(f"[FILE] Output: {output_path}")
         
     except Exception as e:
         logger.error(f"Batch generation failed: {e}")
@@ -342,7 +342,7 @@ def benchmark(dataset_path: str, reference_path: Optional[str], target_column: O
             }, f, indent=2, default=str)
         
         # Print summary
-        click.echo(f"🎯 Benchmark Results:")
+        click.echo(f"[INFO] Benchmark Results:")
         click.echo(f"   Overall Quality Score: {metrics.overall_quality_score:.3f}")
         click.echo(f"   Completeness: {metrics.completeness_score:.3f}")
         click.echo(f"   Consistency: {metrics.consistency_score:.3f}")
@@ -354,7 +354,7 @@ def benchmark(dataset_path: str, reference_path: Optional[str], target_column: O
         if metrics.privacy_score > 0:
             click.echo(f"   Privacy Score: {metrics.privacy_score:.3f}")
         
-        click.echo(f"📁 Results saved to: {output_path}")
+        click.echo(f"[FILE] Results saved to: {output_path}")
         
     except Exception as e:
         logger.error(f"Benchmarking failed: {e}")
@@ -469,7 +469,7 @@ def benchmark_suite(datasets_dir: str, output_dir: str, reference_path: Optional
             }, f, indent=2, default=str)
         
         # Print summary
-        click.echo(f"🎯 Benchmark Suite Results:")
+        click.echo(f"[INFO] Benchmark Suite Results:")
         click.echo(f"   Datasets processed: {len(datasets)}")
         click.echo(f"   Benchmarks completed: {len(results)}")
         
@@ -480,7 +480,7 @@ def benchmark_suite(datasets_dir: str, output_dir: str, reference_path: Optional
             click.echo(f"   Average quality score: {avg_quality:.3f}")
             click.echo(f"   Best dataset: {best_dataset[0]} ({best_dataset[1].overall_quality_score:.3f})")
         
-        click.echo(f"📁 Results saved to: {output_path}")
+        click.echo(f"[FILE] Results saved to: {output_path}")
         
     except Exception as e:
         logger.error(f"Benchmark suite failed: {e}")
@@ -576,10 +576,10 @@ def describe_template(template: str):
     if template:
         info = templates_info.get(template)
         if info:
-            click.echo(f"\n📋 Template: {template}")
-            click.echo(f"📝 Description: {info['description']}\n")
+            click.echo(f"\n[INFO] Template: {template}")
+            click.echo(f"[INFO] Description: {info['description']}\n")
             
-            click.echo("🏗️  Columns:")
+            click.echo("[INFO] Columns:")
             for col in info['columns']:
                 click.echo(f"   • {col}")
             
@@ -782,9 +782,9 @@ def create_config(output_file: str, template: str):
     with open(output_path, 'w') as f:
         json.dump(config, f, indent=2)
     
-    click.echo(f"✅ Configuration template created: {output_path}")
-    click.echo(f"📝 Template type: {template}")
-    click.echo(f"💡 Edit the file to customize your dataset configuration")
+    click.echo(f"[OK] Configuration template created: {output_path}")
+    click.echo(f"[INFO] Template type: {template}")
+    click.echo(f"[INFO] Edit the file to customize your dataset configuration")
 
 
 if __name__ == '__main__':

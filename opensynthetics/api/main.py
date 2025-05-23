@@ -16,6 +16,8 @@ from opensynthetics.core.workspace import Workspace, WorkspaceError, DatasetErro
 from opensynthetics.core.exceptions import OpenSyntheticsError, AuthenticationError
 from opensynthetics.api.auth import get_api_key, get_current_user
 from opensynthetics.api.middleware import LoggingMiddleware, RateLimitMiddleware
+from opensynthetics.api.routers import integrations_router, projects_router
+from opensynthetics.api.startup import initialize_api_server, create_demo_data, print_startup_info
 
 # API Models
 class GenerationParameters(BaseModel):
@@ -80,6 +82,10 @@ app.add_middleware(
 app.add_middleware(LoggingMiddleware)
 app.add_middleware(RateLimitMiddleware, rate_limit=100)
 
+# Include routers
+app.include_router(integrations_router, prefix="/api/v1")
+app.include_router(projects_router, prefix="/api/v1")
+
 # Get the directory where the web UI assets are stored
 web_ui_dir = Path(__file__).parent.parent / "web_ui" / "dist"
 
@@ -106,8 +112,25 @@ async def opensynthetics_exception_handler(request: Request, exc: OpenSynthetics
 # Health check endpoint
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint."""
-    return {"status": "ok", "version": "0.1.0"}
+    """Health check endpoint with additional information."""
+    from opensynthetics.core.security import get_security_manager
+    
+    security_manager = get_security_manager()
+    stats = security_manager.get_usage_stats()
+    
+    return {
+        "status": "ok", 
+        "version": "0.1.0",
+        "features": {
+            "google_drive": True,
+            "postman_integration": True,
+            "api_key_management": True,
+            "mcp_servers": True,
+            "cloud_storage": True,
+            "file_upload": True
+        },
+        "api_stats": stats
+    }
 
 # Root redirect to UI
 @app.get("/", tags=["UI"])
@@ -321,6 +344,19 @@ async def set_api_key(
     config.set_value(f"api_keys.{provider}", api_key)
     
     return {"message": f"API key for {provider} set successfully"}
+
+# Add startup initialization
+initialize_api_server()
+create_demo_data()
+print_startup_info()
+
+# Initialize server on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize the API server on startup."""
+    initialize_api_server()
+    create_demo_data()
+    print_startup_info()
 
 if __name__ == "__main__":
     import uvicorn

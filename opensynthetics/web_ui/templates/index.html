@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenSynthetics - Synthetic Data Generation Platform</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/ui/components.css" rel="stylesheet">
     <style>
         :root {
             --primary-color: #007AFF;
@@ -13,6 +14,7 @@
             --success-color: #34C759;
             --danger-color: #FF3B30;
             --warning-color: #FF9500;
+            --info-color: #5AC8FA;
             --background-color: #F2F2F7;
             --surface-color: #FFFFFF;
             --text-primary: #1C1C1E;
@@ -160,6 +162,14 @@
         .main-content {
             padding: var(--spacing-lg);
             overflow-y: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
         }
 
         .page-header {
@@ -443,6 +453,14 @@
                 OpenSynthetics
             </div>
             <div class="header-actions">
+                <button class="btn btn-secondary" onclick="enhancedFeatures.openFileUploadModal()">
+                    <i class="fas fa-upload"></i>
+                    Upload Files
+                </button>
+                <button class="btn btn-secondary" onclick="enhancedFeatures.openMCPServersModal()">
+                    <i class="fas fa-server"></i>
+                    MCP Servers
+                </button>
                 <button class="btn btn-secondary" onclick="openSettingsModal()">
                     <i class="fas fa-cog"></i>
                     Settings
@@ -476,6 +494,25 @@
                 </a>
             </div>
             <div class="nav-section">
+                <div class="nav-title">Integrations</div>
+                <a href="#" class="nav-item" onclick="showPage('google-drive')">
+                    <i class="fab fa-google-drive"></i>
+                    Google Drive
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('cloud-storage')">
+                    <i class="fas fa-cloud"></i>
+                    Cloud Storage
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('postman')">
+                    <i class="fas fa-paper-plane"></i>
+                    Postman API
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('api-keys')">
+                    <i class="fas fa-key"></i>
+                    API Keys
+                </a>
+            </div>
+            <div class="nav-section">
                 <div class="nav-title">Tools</div>
                 <a href="#" class="nav-item" onclick="showPage('agents')">
                     <i class="fas fa-robot"></i>
@@ -489,16 +526,24 @@
                     <i class="fas fa-check-circle"></i>
                     Validation
                 </a>
+                <a href="#" class="nav-item" onclick="showPage('benchmarking')">
+                    <i class="fas fa-chart-bar"></i>
+                    Benchmarking
+                </a>
             </div>
             <div class="nav-section">
                 <div class="nav-title">Analytics</div>
                 <a href="#" class="nav-item" onclick="showPage('analytics')">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-chart-pie"></i>
                     Analytics
                 </a>
                 <a href="#" class="nav-item" onclick="showPage('monitoring')">
-                    <i class="fas fa-monitor-heart-rate"></i>
+                    <i class="fas fa-heartbeat"></i>
                     Monitoring
+                </a>
+                <a href="#" class="nav-item" onclick="showPage('export')">
+                    <i class="fas fa-download"></i>
+                    Export & Reports
                 </a>
             </div>
         </nav>
@@ -526,10 +571,10 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard Page -->
-            <div id="dashboard-page" class="page">
+            <div id="dashboard-page" class="page active">
                 <div class="page-header">
                     <h1 class="page-title">Dashboard</h1>
-                    <p class="page-subtitle">Welcome to OpenSynthetics - Your synthetic data generation platform</p>
+                    <p class="page-subtitle">Welcome to OpenSynthetics - Your comprehensive synthetic data generation platform</p>
                 </div>
 
                 <div class="grid grid-3">
@@ -570,9 +615,13 @@
                                 <i class="fas fa-magic"></i>
                                 Generate Data
                             </button>
-                            <button class="btn btn-secondary" onclick="showPage('datasets')">
-                                <i class="fas fa-table"></i>
-                                Browse Datasets
+                            <button class="btn btn-secondary" onclick="enhancedFeatures.openFileUploadModal()">
+                                <i class="fas fa-upload"></i>
+                                Upload Files
+                            </button>
+                            <button class="btn btn-secondary" onclick="showPage('google-drive')">
+                                <i class="fab fa-google-drive"></i>
+                                Connect Google Drive
                             </button>
                         </div>
                     </div>
@@ -796,6 +845,50 @@
         </div>
     </div>
 
-    <script src="/static/js/app.js"></script>
+    <!-- Load Scripts -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="/ui/app.js"></script>
+    <script src="/ui/enhanced-features.js"></script>
+    <script src="/ui/google-drive.js"></script>
+    <script src="/ui/postman-integration.js"></script>
+    <script>
+        // Initialize the application
+        let openSyntheticsApp;
+        let enhancedFeatures;
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            openSyntheticsApp = new OpenSyntheticsApp();
+            enhancedFeatures = new EnhancedFeatures(openSyntheticsApp);
+            
+            // Set app as global for compatibility
+            window.openSyntheticsApp = openSyntheticsApp;
+            window.enhancedFeatures = enhancedFeatures;
+        });
+
+        // Global functions for compatibility
+        function showPage(pageId) {
+            if (window.openSyntheticsApp) {
+                window.openSyntheticsApp.showPage(pageId);
+            }
+        }
+
+        function openNewWorkspaceModal() {
+            if (window.openSyntheticsApp) {
+                window.openSyntheticsApp.openNewWorkspaceModal();
+            }
+        }
+
+        function openSettingsModal() {
+            if (window.openSyntheticsApp) {
+                window.openSyntheticsApp.openSettingsModal();
+            }
+        }
+
+        function closeModal(modalId) {
+            if (window.enhancedFeatures) {
+                window.enhancedFeatures.closeModal(modalId);
+            }
+        }
+    </script>
 </body>
 </html> 

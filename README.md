@@ -1,286 +1,207 @@
 # OpenSynthetics
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Advanced synthetic data generation platform with comprehensive API, CLI, and web interface capabilities.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![Tests](https://img.shields.io/badge/tests-95%2F98_passing-brightgreen.svg)](#testing)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-**Advanced Synthetic Data Generation Platform** - Create high-quality synthetic datasets with comprehensive benchmarking, export capabilities, and LLM training pipeline integration.
+## Overview
 
-OpenSynthetics is a comprehensive platform for generating, benchmarking, and exporting synthetic datasets with advanced quality assessment, multiple format support, and machine learning utility evaluation.
+OpenSynthetics is a powerful, enterprise-ready platform for generating high-quality synthetic data. It provides a complete solution for data scientists, engineers, and researchers who need realistic test data while maintaining privacy and compliance standards.
 
-## Key Features
+### Key Features
 
-### Synthetic Data Generation
-- **Pre-built Templates**: Customer data, sales transactions, IoT sensor data
-- **Custom Configurations**: Define your own column schemas, distributions, and correlations
-- **Advanced Patterns**: Temporal trends, seasonality, outliers, and business rules
-- **Data Types**: Numeric, categorical, datetime, text, boolean, and ID fields
-- **Correlation Modeling**: Cholesky decomposition for realistic data relationships
+- **Advanced Data Generation**: Create realistic synthetic datasets using multiple generation strategies
+- **Web Interface**: Modern, responsive UI with real-time visualizations and analytics
+- **RESTful API**: Comprehensive API with OpenAPI documentation
+- **CLI Tools**: Command-line interface for automation and scripting
+- **Workspace Management**: Organize datasets and projects efficiently
+- **Quality Benchmarking**: Built-in tools to measure synthetic data quality
+- **Multiple Export Formats**: Support for JSON, CSV, Parquet, and more
+- **Extensible Architecture**: Plugin system for custom generation strategies
 
-### Quality Benchmarking
-- **Multi-dimensional Quality Metrics**: Completeness, consistency, uniqueness, validity
-- **Statistical Fidelity**: Distribution similarity and correlation preservation
-- **ML Utility Evaluation**: Classification and regression performance assessment
-- **Privacy Assessment**: Disclosure risk and privacy score calculation
-- **Visualization**: Radar charts, distribution plots, correlation heatmaps
+## Installation
 
-### Export & Integration
-- **Multiple Formats**: JSON, JSONL, CSV, Parquet, HDF5, Excel, Feather
-- **Compression Support**: Gzip, Snappy, LZ4, Brotli, and more
-- **Metadata Preservation**: Schema information, quality metrics, checksums
-- **Batch Processing**: Multi-dataset generation and export
-- **API Integration**: FastAPI-based REST API
+### Requirements
 
-### LLM Integration
-- **Scientific Literature Processing**: arXiv and PubMed integration
-- **PDF Processing**: Extract training data from scientific papers
-- **Training Pipeline**: QLoRA fine-tuning with Hugging Face Transformers
-- **Data Validation**: Comprehensive schema validation and error handling
+- Python 3.11 or higher
+- 4GB RAM minimum (8GB recommended)
+- 1GB free disk space
 
-## Quick Start
+### Quick Start
 
-### Installation
-
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/OpenSynthetics.git
-cd OpenSynthetics
-
-# Install with all dependencies
-pip install -e ".[all]"
-
-# Or install specific groups
-pip install -e ".[training,benchmarking,export]"
+git clone https://github.com/yourusername/opensynthetics.git
+cd opensynthetics
 ```
 
-### Basic Usage
-
-#### 1. Generate Synthetic Data
-
-```python
-from opensynthetics.datagen.synthetic_datasets import SyntheticDatasetFactory
-
-# Create factory
-factory = SyntheticDatasetFactory()
-
-# Generate customer data
-result = factory.create_dataset(
-    config='customer_data',
-    num_rows=1000,
-    benchmark=True,
-    export=True
-)
-
-# Access the generated dataset
-df = result['dataset']
-quality_score = result['benchmark_metrics']['overall_quality_score']
-print(f"Generated {len(df)} rows with quality score: {quality_score:.3f}")
+2. Create a virtual environment:
+```bash
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-#### 2. Export to Multiple Formats
-
-```python
-from opensynthetics.data_ops.export_utils import DataExporter, ExportConfig
-
-# Export to Parquet with compression
-config = ExportConfig(format='parquet', compression='snappy')
-exporter = DataExporter(config)
-metadata = exporter.export_dataset(df, 'output.parquet')
-
-print(f"Exported {metadata.total_records} records, compression ratio: {metadata.compression_ratio:.2f}")
+3. Install the package:
+```bash
+pip install -e .
 ```
 
-#### 3. Quality Benchmarking
-
-```python
-from opensynthetics.training_eval.benchmark import SyntheticDatasetBenchmark, BenchmarkConfig
-
-# Configure benchmarking
-config = BenchmarkConfig(
-    ml_evaluation=True,
-    create_visualizations=True,
-    generate_report=True
-)
-
-# Run benchmark
-benchmarker = SyntheticDatasetBenchmark(config)
-metrics = benchmarker.benchmark_dataset(df, target_column='category')
-
-print(f"Overall Quality: {metrics.overall_quality_score:.3f}")
-print(f"ML Utility: {metrics.ml_utility_score:.3f}")
+4. Run the setup script:
+```bash
+python setup_dev.py
 ```
+
+5. Start the server:
+```bash
+python start_server.py
+```
+
+6. Open your browser and navigate to:
+   - Web UI: http://localhost:8000/ui
+   - API Documentation: http://localhost:8000/docs
+
+## Usage
+
+### Web Interface
+
+The web interface provides a comprehensive dashboard for:
+- Creating and managing workspaces
+- Generating synthetic datasets
+- Visualizing data with advanced charts
+- Monitoring system performance
+- Managing API integrations
 
 ### Command Line Interface
 
+Generate synthetic data from the command line:
+
 ```bash
-# Generate synthetic datasets
-opensynthetics synthetic generate --template customer_data --num-rows 5000 --format parquet
+# Generate customer data
+opensynthetics generate customer-data output.json --rows 1000
 
-# Run quality benchmarking
-opensynthetics synthetic benchmark dataset.parquet --visualizations --report
+# Generate with specific template
+opensynthetics generate --template sales_data --output sales.csv --format csv
 
-# Generate multiple datasets
-opensynthetics synthetic batch-generate --config-file batch_config.json
-
-# Scientific data processing
-opensynthetics scientific literature workspace_path --arxiv-categories cs.AI cs.LG
-
-# Start API server
-opensynthetics api serve --host 0.0.0.0 --port 8000
-
-# Configuration management
-opensynthetics config set api_keys.openai your_api_key
-opensynthetics config get api_keys
+# Benchmark data quality
+opensynthetics benchmark dataset.json --reference original.json
 ```
 
-## Available Templates
+### API Usage
 
-### Customer Data
-- **Columns**: customer_id, age, income, gender, region, registration_date, is_premium
-- **Features**: Demographic correlations, business rules, realistic distributions
-- **Use Cases**: Customer segmentation, marketing analysis, demographic studies
+```python
+import requests
 
-### Sales Data
-- **Columns**: transaction_id, customer_id, product_category, amount, quantity, transaction_date, payment_method, discount_applied
-- **Features**: Temporal patterns, seasonal trends, transaction correlations
-- **Use Cases**: Sales forecasting, customer behavior analysis, revenue optimization
+# Generate synthetic data via API
+response = requests.post(
+    "http://localhost:8000/api/v1/generate/jobs",
+    headers={"X-API-Key": "your-api-key"},
+    json={
+        "workspace_path": "/path/to/workspace",
+        "strategy": "engineering_problems",
+        "parameters": {"count": 100},
+        "output_dataset": "problems_dataset"
+    }
+)
 
-### IoT Sensor Data
-- **Columns**: sensor_id, timestamp, temperature, humidity, pressure, light_level, battery_level, status
-- **Features**: Sensor correlations, temporal patterns, anomaly simulation
-- **Use Cases**: Environmental monitoring, predictive maintenance, anomaly detection
+result = response.json()
+print(f"Generated {result['count']} items")
+```
 
 ## Architecture
 
+OpenSynthetics follows a modular architecture:
+
 ```
-OpenSynthetics/
-├── opensynthetics/
-│   ├── api/                    # FastAPI REST API
-│   ├── cli/                    # Command-line interface
-│   ├── core/                   # Core configuration and workspace
-│   ├── datagen/                # Data generation engines
-│   │   ├── synthetic_datasets.py  # Main synthetic data generator
-│   │   └── engine.py          # Generation engine
-│   ├── data_ops/              # Data operations
-│   │   ├── export_utils.py    # Multi-format export
-│   │   └── validation.py      # Data validation
-│   ├── training_eval/         # Training and evaluation
-│   │   └── benchmark.py       # Quality benchmarking
-│   ├── llm_core/             # LLM integration
-│   └── web_ui/               # Web interface
-├── tests/                     # Comprehensive test suite
-└── docs/                      # Documentation
+opensynthetics/
+├── api/           # FastAPI application and routers
+├── cli/           # Command-line interface
+├── core/          # Core functionality (workspaces, configuration)
+├── data_ops/      # Data operations and validation
+├── datagen/       # Generation engines and strategies
+├── llm_core/      # LLM integrations for advanced generation
+├── training/      # Model training utilities
+├── training_eval/ # Evaluation and benchmarking
+└── web_ui/        # Web interface assets
 ```
 
-## Testing
+## Development
 
-Run the comprehensive test suite:
+### Running Tests
 
 ```bash
 # Run all tests
-python -m pytest tests/ -v
+pytest
 
 # Run with coverage
-python -m pytest tests/ --cov=opensynthetics --cov-report=html
+pytest --cov=opensynthetics
 
-# Run specific test categories
-python -m pytest tests/test_synthetic_datasets.py -v
-python -m pytest tests/unit/ -v
+# Run specific test file
+pytest tests/unit/test_workspace.py
 ```
 
-**Test Status**: 95/98 tests passing (3 expected failures for error condition testing)
+### Code Quality
 
-## Quality Metrics
+The project uses several tools to maintain code quality:
 
-The platform provides comprehensive quality assessment:
+```bash
+# Format code
+black opensynthetics tests
 
-- **Completeness**: Measures missing values and data coverage
-- **Consistency**: Evaluates data format and type consistency
-- **Uniqueness**: Assesses duplicate records and unique value ratios
-- **Validity**: Validates data constraints and business rules
-- **Statistical Fidelity**: Compares distributions and correlations
-- **ML Utility**: Evaluates predictive performance
-- **Privacy Score**: Assesses disclosure risk
+# Lint code
+ruff check opensynthetics
+
+# Type checking
+mypy opensynthetics
+```
+
+### Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## Configuration
 
-### Environment Configuration
+OpenSynthetics uses a configuration file located at `~/.opensynthetics/opensynthetics_config.json`. You can manage settings using the CLI:
 
 ```bash
-# Set API keys
-opensynthetics config set api_keys.openai sk-your-key-here
-opensynthetics config set api_keys.huggingface hf-your-key-here
+# Set OpenAI API key
+opensynthetics config set api_keys.openai "your-api-key"
 
-# Configure storage
-opensynthetics config set storage.base_dir /path/to/data
-opensynthetics config set export.default_format parquet
+# View current configuration
+opensynthetics config get
 ```
 
-### Custom Dataset Configuration
+## Deployment
 
-```json
-{
-  "num_rows": 10000,
-  "columns": [
-    {
-      "name": "user_id",
-      "data_type": "id",
-      "unique": true,
-      "id_prefix": "USER"
-    },
-    {
-      "name": "age",
-      "data_type": "numeric",
-      "distribution": {
-        "distribution_type": "normal",
-        "mean": 35.0,
-        "std": 12.0,
-        "min_value": 18.0,
-        "max_value": 80.0
-      }
-    },
-    {
-      "name": "category",
-      "data_type": "categorical",
-      "distribution": {
-        "categories": ["A", "B", "C"],
-        "weights": [0.5, 0.3, 0.2]
-      }
-    }
-  ],
-  "business_rules": [
-    "if age > 65 then category = 'senior'"
-  ],
-  "add_temporal_patterns": true,
-  "seasonality": "monthly"
-}
-```
+### Docker
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
+Build and run with Docker:
 
 ```bash
-# Clone and setup development environment
-git clone https://github.com/yourusername/OpenSynthetics.git
-cd OpenSynthetics
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install in development mode
-pip install -e ".[dev]"
-
-# Run tests
-python -m pytest tests/ -v
-
-# Run linting
-ruff check opensynthetics/
-ruff format opensynthetics/
+docker build -t opensynthetics .
+docker run -p 8000:8000 opensynthetics
 ```
+
+### Docker Compose
+
+For a complete setup with database:
+
+```bash
+docker-compose up -d
+```
+
+## API Documentation
+
+The API provides the following main endpoints:
+
+- `GET /health` - Health check
+- `GET /api/v1/workspaces` - List workspaces
+- `POST /api/v1/workspaces` - Create workspace
+- `POST /api/v1/generate/jobs` - Create generation job
+- `GET /api/v1/strategies` - List available strategies
+
+Full API documentation is available at http://localhost:8000/docs when the server is running.
 
 ## License
 
@@ -288,21 +209,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- **Documentation**: [Full documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/OpenSynthetics/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/OpenSynthetics/discussions)
+- Documentation: [docs.opensynthetics.io](https://docs.opensynthetics.io)
+- Issues: [GitHub Issues](https://github.com/yourusername/opensynthetics/issues)
+- Discussions: [GitHub Discussions](https://github.com/yourusername/opensynthetics/discussions)
 
 ## Acknowledgments
 
-- Built with [FastAPI](https://fastapi.tiangolo.com/), [Pydantic](https://pydantic-docs.helpmanual.io/), and [Pandas](https://pandas.pydata.org/)
-- Inspired by the need for high-quality synthetic data in AI/ML research
-- Special thanks to the open-source community for their invaluable contributions
-
----
-
-**Ready to generate high-quality synthetic data?**
-
-```bash
-pip install -e ".[all]"
-opensynthetics synthetic generate --template customer_data --num-rows 1000
-``` 
+- Built with [FastAPI](https://fastapi.tiangolo.com/)
+- UI powered by [Three.js](https://threejs.org/) and [D3.js](https://d3js.org/)
+- Data processing with [Pandas](https://pandas.pydata.org/) and [DuckDB](https://duckdb.org/) 
