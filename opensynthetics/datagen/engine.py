@@ -5,12 +5,13 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union, Literal
 
+import pandas as pd
 from loguru import logger
 from pydantic import BaseModel, Field, field_validator
 
 from opensynthetics.core.config import Config
 from opensynthetics.core.workspace import Workspace, Dataset
-from opensynthetics.core.exceptions import WorkspaceError, DatasetError, OpenSyntheticsError, GenerationError
+from opensynthetics.core.exceptions import WorkspaceError, DatasetError, OpenSyntheticsError, GenerationError, ProcessingError, EvaluationError
 from opensynthetics.llm_core.agents.generator import GeneratorAgent
 # Import advanced strategies when they're ready
 try:
@@ -23,6 +24,24 @@ try:
     ADVANCED_STRATEGIES_AVAILABLE = True
 except ImportError:
     ADVANCED_STRATEGIES_AVAILABLE = False
+
+# Import scientific strategies
+try:
+    from opensynthetics.datagen.scientific_strategies import (
+        ScientificLiteratureStrategy,
+        ScientificDatasetStrategy
+    )
+    SCIENTIFIC_STRATEGIES_AVAILABLE = True
+except ImportError:
+    SCIENTIFIC_STRATEGIES_AVAILABLE = False
+
+from opensynthetics.datagen.synthetic_datasets import (
+    SyntheticDatasetFactory, 
+    DatasetTemplate,
+    SyntheticDatasetConfig
+)
+from opensynthetics.data_ops.export_utils import DataExporter, ExportConfig, BatchExporter
+from opensynthetics.training_eval.benchmark import SyntheticDatasetBenchmark, BenchmarkConfig
 
 
 class EngineeringProblemParams(BaseModel):
@@ -340,6 +359,13 @@ class Engine:
             "multimodal_data": MultiModalDataStrategy,
         })
     
+    # Add scientific strategies if available
+    if SCIENTIFIC_STRATEGIES_AVAILABLE:
+        STRATEGIES.update({
+            "scientific_literature": ScientificLiteratureStrategy,
+            "scientific_dataset": ScientificDatasetStrategy,
+        })
+    
     def __init__(self, workspace: Workspace) -> None:
         """Initialize engine.
         
@@ -458,3 +484,415 @@ class Engine:
 # class MultiAgentStrategy(GenerationStrategy):
 #     """Strategy using multiple agents to generate and validate data."""
 #     pass
+
+class OpenSyntheticsEngine:
+    """Main engine for OpenSynthetics data generation."""
+    
+    def __init__(self, config: Config = None) -> None:
+        """Initialize the engine."""
+        self.config = config or Config.load()
+        self.strategies = {}
+        self.results_cache = {}
+        
+        # Initialize new components
+        self.synthetic_factory = SyntheticDatasetFactory()
+        self.data_exporter = DataExporter()
+        self.benchmarker = SyntheticDatasetBenchmark()
+        
+        # Register default strategies
+        self._register_default_strategies()
+        
+        logger.info("OpenSynthetics engine initialized")
+    
+    def _register_default_strategies(self) -> None:
+        """Register default data generation strategies."""
+        # Register existing strategies (commented out until they're implemented)
+        # self.register_strategy("conversation", ConversationStrategy())
+        # self.register_strategy("instruction", InstructionStrategy())
+        # self.register_strategy("scientific_literature", ScientificLiteratureStrategy())
+        # self.register_strategy("scientific_dataset", ScientificDatasetStrategy())
+        
+        # Register new synthetic dataset strategies
+        self.strategies["synthetic_customer"] = self._create_customer_strategy
+        self.strategies["synthetic_sales"] = self._create_sales_strategy
+        self.strategies["synthetic_iot"] = self._create_iot_strategy
+        self.strategies["synthetic_custom"] = self._create_custom_strategy
+    
+    def _create_customer_strategy(self):
+        """Create customer data strategy."""
+        return lambda num_examples, **kwargs: self.synthetic_factory.create_dataset(
+            config="customer_data",
+            num_rows=num_examples,
+            **kwargs
+        )
+    
+    def _create_sales_strategy(self):
+        """Create sales data strategy."""
+        return lambda num_examples, **kwargs: self.synthetic_factory.create_dataset(
+            config="sales_data",
+            num_rows=num_examples,
+            **kwargs
+        )
+    
+    def _create_iot_strategy(self):
+        """Create IoT sensor data strategy."""
+        return lambda num_examples, **kwargs: self.synthetic_factory.create_dataset(
+            config="iot_sensor_data",
+            num_rows=num_examples,
+            **kwargs
+        )
+    
+    def _create_custom_strategy(self):
+        """Create custom synthetic data strategy."""
+        return lambda config, **kwargs: self.synthetic_factory.create_dataset(
+            config=config,
+            **kwargs
+        )
+
+    def generate_synthetic_dataset(
+        self,
+        template_name: str,
+        num_rows: int = 1000,
+        export_format: str = "parquet",
+        benchmark: bool = True,
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Generate synthetic dataset using templates.
+        
+        Args:
+            template_name: Name of the dataset template
+            num_rows: Number of rows to generate
+            export_format: Export format (parquet, csv, json, etc.)
+            benchmark: Whether to run quality benchmarking
+            **kwargs: Additional configuration options
+            
+        Returns:
+            Dictionary containing dataset and metadata
+        """
+        logger.info(f"Generating synthetic dataset: {template_name}")
+        
+        try:
+            # Create export configuration
+            export_config = ExportConfig(
+                format=export_format,
+                include_metadata=True,
+                create_checksums=True
+            )
+            
+            # Generate dataset
+            result = self.synthetic_factory.create_dataset(
+                config=template_name,
+                num_rows=num_rows,
+                benchmark=benchmark,
+                export=True,
+                export_config=export_config,
+                **kwargs
+            )
+            
+            # Cache result
+            cache_key = f"synthetic_{template_name}_{num_rows}"
+            self.results_cache[cache_key] = result
+            
+            logger.info(f"Generated synthetic dataset: {result['metadata']['num_rows']} rows, "
+                       f"{result['metadata']['num_columns']} columns")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Failed to generate synthetic dataset: {e}")
+            raise GenerationError(f"Synthetic dataset generation failed: {e}")
+    
+    def generate_multiple_synthetic_datasets(
+        self,
+        dataset_configs: Dict[str, Union[str, Dict[str, Any]]],
+        output_dir: str = "./synthetic_datasets",
+        export_format: str = "parquet",
+        benchmark: bool = True
+    ) -> Dict[str, Dict[str, Any]]:
+        """Generate multiple synthetic datasets in batch.
+        
+        Args:
+            dataset_configs: Dictionary mapping dataset names to configurations
+            output_dir: Output directory for datasets
+            export_format: Export format for all datasets
+            benchmark: Whether to run quality benchmarking
+            
+        Returns:
+            Dictionary of results for each dataset
+        """
+        logger.info(f"Generating {len(dataset_configs)} synthetic datasets in batch")
+        
+        try:
+            # Prepare configurations
+            configs = {}
+            for name, config in dataset_configs.items():
+                if isinstance(config, str):
+                    # Template name
+                    configs[name] = config
+                else:
+                    # Custom configuration
+                    if "export_config" not in config:
+                        config["export_config"] = {
+                            "format": export_format,
+                            "include_metadata": True,
+                            "create_checksums": True
+                        }
+                    configs[name] = SyntheticDatasetConfig.parse_obj(config)
+            
+            # Generate datasets
+            results = self.synthetic_factory.create_multiple_datasets(
+                configs=configs,
+                benchmark=benchmark,
+                export=True
+            )
+            
+            # Export datasets if needed
+            if output_dir:
+                export_config = ExportConfig(format=export_format, include_metadata=True)
+                batch_exporter = BatchExporter()
+                
+                datasets_to_export = {}
+                for name, result in results.items():
+                    if not result.get("error") and result.get("dataset") is not None:
+                        datasets_to_export[name] = result["dataset"]
+                
+                if datasets_to_export:
+                    batch_exporter.export_multiple(
+                        datasets=datasets_to_export,
+                        output_dir=output_dir,
+                        default_config=export_config
+                    )
+            
+            # Cache results
+            cache_key = f"batch_synthetic_{len(dataset_configs)}"
+            self.results_cache[cache_key] = results
+            
+            successful = sum(1 for r in results.values() if not r.get("error"))
+            logger.info(f"Batch generation completed: {successful}/{len(dataset_configs)} successful")
+            
+            return results
+            
+        except Exception as e:
+            logger.error(f"Failed to generate synthetic datasets: {e}")
+            raise GenerationError(f"Batch synthetic dataset generation failed: {e}")
+    
+    def benchmark_dataset(
+        self,
+        dataset: Union[pd.DataFrame, str, Path],
+        reference_dataset: Optional[Union[pd.DataFrame, str, Path]] = None,
+        target_column: Optional[str] = None,
+        config: Optional[BenchmarkConfig] = None
+    ) -> Dict[str, Any]:
+        """Benchmark dataset quality and utility.
+        
+        Args:
+            dataset: Dataset to benchmark (DataFrame or file path)
+            reference_dataset: Optional reference dataset for comparison
+            target_column: Target column for ML evaluation
+            config: Benchmark configuration
+            
+        Returns:
+            Dictionary containing benchmark results
+        """
+        logger.info("Running dataset quality benchmark")
+        
+        try:
+            # Load datasets if needed
+            if isinstance(dataset, (str, Path)):
+                dataset_path = Path(dataset)
+                if dataset_path.suffix == '.parquet':
+                    synthetic_df = pd.read_parquet(dataset_path)
+                elif dataset_path.suffix == '.csv':
+                    synthetic_df = pd.read_csv(dataset_path)
+                elif dataset_path.suffix == '.json':
+                    synthetic_df = pd.read_json(dataset_path)
+                else:
+                    raise ProcessingError(f"Unsupported file format: {dataset_path.suffix}")
+            else:
+                synthetic_df = dataset
+            
+            reference_df = None
+            if reference_dataset is not None:
+                if isinstance(reference_dataset, (str, Path)):
+                    ref_path = Path(reference_dataset)
+                    if ref_path.suffix == '.parquet':
+                        reference_df = pd.read_parquet(ref_path)
+                    elif ref_path.suffix == '.csv':
+                        reference_df = pd.read_csv(ref_path)
+                    elif ref_path.suffix == '.json':
+                        reference_df = pd.read_json(ref_path)
+                    else:
+                        raise ProcessingError(f"Unsupported reference file format: {ref_path.suffix}")
+                else:
+                    reference_df = reference_dataset
+            
+            # Use provided config or create default
+            benchmark_config = config or BenchmarkConfig()
+            benchmarker = SyntheticDatasetBenchmark(benchmark_config)
+            
+            # Auto-detect target column if not provided
+            if not target_column:
+                categorical_cols = synthetic_df.select_dtypes(include=['object', 'category']).columns
+                numeric_cols = synthetic_df.select_dtypes(include=['number']).columns
+                
+                if len(categorical_cols) > 0:
+                    target_column = categorical_cols[0]
+                elif len(numeric_cols) > 0:
+                    target_column = numeric_cols[0]
+            
+            # Run benchmark
+            metrics = benchmarker.benchmark_dataset(
+                synthetic_data=synthetic_df,
+                reference_data=reference_df,
+                target_column=target_column
+            )
+            
+            results = {
+                "metrics": metrics.dict(),
+                "dataset_info": {
+                    "synthetic_shape": synthetic_df.shape,
+                    "reference_shape": reference_df.shape if reference_df is not None else None,
+                    "target_column": target_column
+                },
+                "config": benchmark_config.dict()
+            }
+            
+            logger.info(f"Benchmark completed. Overall quality score: {metrics.overall_quality_score:.3f}")
+            return results
+            
+        except Exception as e:
+            logger.error(f"Dataset benchmarking failed: {e}")
+            raise EvaluationError(f"Failed to benchmark dataset: {e}")
+    
+    def export_dataset(
+        self,
+        data: Union[pd.DataFrame, List[Dict[str, Any]]],
+        output_path: Union[str, Path],
+        format: str = "parquet",
+        **export_options
+    ) -> Dict[str, Any]:
+        """Export dataset to specified format.
+        
+        Args:
+            data: Data to export
+            output_path: Output file path
+            format: Export format
+            **export_options: Additional export options
+            
+        Returns:
+            Export metadata
+        """
+        logger.info(f"Exporting dataset to {output_path} in {format} format")
+        
+        try:
+            # Create export configuration
+            export_config = ExportConfig(
+                format=format,
+                include_metadata=True,
+                create_checksums=True,
+                **export_options
+            )
+            
+            # Export dataset
+            exporter = DataExporter(export_config)
+            metadata = exporter.export_dataset(data, output_path)
+            
+            logger.info(f"Export completed: {metadata.total_records} records, "
+                       f"{metadata.total_size_bytes} bytes")
+            
+            return metadata.dict()
+            
+        except Exception as e:
+            logger.error(f"Dataset export failed: {e}")
+            raise ProcessingError(f"Failed to export dataset: {e}")
+    
+    def create_synthetic_dataset_config(
+        self,
+        num_rows: int,
+        columns: List[Dict[str, Any]],
+        **options
+    ) -> SyntheticDatasetConfig:
+        """Create synthetic dataset configuration.
+        
+        Args:
+            num_rows: Number of rows to generate
+            columns: Column specifications
+            **options: Additional configuration options
+            
+        Returns:
+            SyntheticDatasetConfig object
+        """
+        try:
+            # Parse column specifications
+            column_schemas = []
+            for col_spec in columns:
+                from opensynthetics.datagen.synthetic_datasets import ColumnSchema, DataDistribution
+                
+                # Create distribution if specified
+                distribution = DataDistribution()
+                if "distribution" in col_spec:
+                    distribution = DataDistribution.parse_obj(col_spec["distribution"])
+                
+                # Create column schema
+                column_schema = ColumnSchema(
+                    name=col_spec["name"],
+                    data_type=col_spec.get("data_type", "numeric"),
+                    distribution=distribution,
+                    **{k: v for k, v in col_spec.items() 
+                       if k not in ["name", "data_type", "distribution"]}
+                )
+                column_schemas.append(column_schema)
+            
+            # Create configuration
+            config = SyntheticDatasetConfig(
+                num_rows=num_rows,
+                columns=column_schemas,
+                **options
+            )
+            
+            return config
+            
+        except Exception as e:
+            logger.error(f"Failed to create synthetic dataset config: {e}")
+            raise GenerationError(f"Config creation failed: {e}")
+    
+    def get_available_templates(self) -> List[str]:
+        """Get list of available synthetic dataset templates.
+        
+        Returns:
+            List of template names
+        """
+        return self.synthetic_factory.list_templates()
+    
+    def get_template_info(self, template_name: str) -> Dict[str, Any]:
+        """Get information about a specific template.
+        
+        Args:
+            template_name: Name of the template
+            
+        Returns:
+            Template information
+        """
+        if template_name == "customer_data":
+            return {
+                "name": "customer_data",
+                "description": "Customer demographic and profile data",
+                "columns": ["customer_id", "age", "income", "gender", "region", "registration_date", "is_premium"],
+                "use_cases": ["Customer segmentation", "Marketing analysis", "Demographic studies"]
+            }
+        elif template_name == "sales_data":
+            return {
+                "name": "sales_data",
+                "description": "E-commerce transaction and sales data",
+                "columns": ["transaction_id", "customer_id", "product_category", "amount", "quantity", "transaction_date", "payment_method", "discount_applied"],
+                "use_cases": ["Sales forecasting", "Customer behavior analysis", "Revenue optimization"]
+            }
+        elif template_name == "iot_sensor_data":
+            return {
+                "name": "iot_sensor_data",
+                "description": "IoT sensor monitoring and telemetry data",
+                "columns": ["sensor_id", "timestamp", "temperature", "humidity", "pressure", "light_level", "battery_level", "status"],
+                "use_cases": ["Environmental monitoring", "Predictive maintenance", "Anomaly detection"]
+            }
+        else:
+            raise ValueError(f"Unknown template: {template_name}")

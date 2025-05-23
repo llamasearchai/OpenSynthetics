@@ -40,6 +40,11 @@ class ValidationError(OpenSyntheticsError):
     """Exception raised for data validation errors."""
     pass
 
+
+class ProcessingError(OpenSyntheticsError):
+    """Exception raised for data processing errors."""
+    pass
+
 class LLMError(OpenSyntheticsError):
     """Exception raised for LLM provider errors."""
     pass
@@ -57,7 +62,7 @@ class TrainingError(OpenSyntheticsError):
     pass
 
 class EvaluationError(OpenSyntheticsError):
-    """Exception raised for evaluation errors."""
+    """Exception raised when evaluation or benchmarking fails."""
     pass
 
 class MLXAcceleratorError(OpenSyntheticsError):
@@ -70,4 +75,40 @@ class AgentError(OpenSyntheticsError):
 
 class ResourceExhaustedError(OpenSyntheticsError):
     """Exception raised when system resources are exhausted."""
+    pass
+
+class ExportError(ProcessingError):
+    """Exception raised when data export fails."""
+    pass
+
+class ImportError(ProcessingError):
+    """Exception raised when data import fails."""
+    pass
+
+class BenchmarkError(EvaluationError):
+    """Exception raised when benchmarking operations fail."""
+    pass
+
+class TemplateError(GenerationError):
+    """Exception raised when template processing fails."""
+    pass
+
+class SchemaError(ValidationError):
+    """Exception raised when schema validation fails."""
+    pass
+
+class ConfigurationError(OpenSyntheticsError):
+    """Exception raised when configuration is invalid."""
+    pass
+
+class DataQualityError(ProcessingError):
+    """Exception raised when data quality issues are detected."""
+    pass
+
+class CorrelationError(GenerationError):
+    """Exception raised when correlation generation fails."""
+    pass
+
+class DistributionError(GenerationError):
+    """Exception raised when distribution generation fails."""
     pass

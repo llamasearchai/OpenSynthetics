@@ -16,6 +16,14 @@ from rich import box
 
 from opensynthetics.core.config import Config
 from opensynthetics.core.workspace import Workspace, WorkspaceError, DatasetError
+from opensynthetics.cli.scientific import scientific
+
+# Import synthetic differently since it's a click command
+try:
+    from opensynthetics.cli.synthetic import synthetic as synthetic_cli
+    SYNTHETIC_AVAILABLE = True
+except ImportError:
+    SYNTHETIC_AVAILABLE = False
 
 # Import only when actually starting the API to avoid circular imports
 # and unnecessary dependencies loading when just using the CLI
@@ -42,6 +50,14 @@ app.add_typer(data_app)
 app.add_typer(api_cli_app)
 app.add_typer(datasette_app)
 app.add_typer(agent_app)
+
+# Add command groups
+app.add_typer(scientific, name="scientific")
+
+if SYNTHETIC_AVAILABLE:
+    # For now, let's disable synthetic until we can properly convert it
+    # Add it as a separate typer app later
+    pass
 
 
 @app.command("init")
@@ -402,5 +418,10 @@ def agent_chat(
         sys.exit(1)
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the CLI application."""
     app()
+
+
+if __name__ == "__main__":
+    main()
